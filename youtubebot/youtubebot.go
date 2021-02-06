@@ -1,4 +1,4 @@
-package YouTubeBot
+package youtubebot
 
 import (
 	"encoding/json"
@@ -58,7 +58,7 @@ func retrieveVideo(channelUrl string) ([]Item, error) {
 
 func makeRequest(channelUrl string, maxResults int) (*http.Request, error) {
 	lastSlashIndex := strings.LastIndex(channelUrl, "/")
-	channelId := channelUrl[lastSlashIndex + 1 :]
+	channelId := channelUrl[lastSlashIndex+1:]
 
 	req, err := http.NewRequest("GET", YoutubeSearchUrl, nil)
 	if err != nil {
