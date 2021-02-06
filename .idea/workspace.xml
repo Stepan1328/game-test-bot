@@ -19,16 +19,7 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="591fb071-010b-4212-9459-7d7752f32332" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/YouTubeBot/models.go" beforeDir="false" afterPath="$PROJECT_DIR$/youtubebot/models.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/YouTubeBot/youtubebot.go" beforeDir="false" afterPath="$PROJECT_DIR$/youtubebot/youtubebot.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test5.txt" beforeDir="false" />
-    </list>
+    <list default="true" id="591fb071-010b-4212-9459-7d7752f32332" name="Default Changelist" comment="&quot;make some changes&quot;" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -127,6 +118,10 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="&quot;make some changes&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="&quot;make some changes&quot;" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
