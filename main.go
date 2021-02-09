@@ -42,7 +42,7 @@ func main() {
 
 		if update.Message.Command() == "tttgame" && !gameIsRunning {
 			buttonMatrix := tttgame(update, *bot)
-			go listenCallbackQuery(update, *bot, translateUpdate, stopChannel, buttonMatrix)
+			go listenCallbackQuery(update, *bot, translateUpdate, stopChannel, buttonMatrix, &gameIsRunning)
 			gameIsRunning = true
 
 			continue
@@ -51,7 +51,6 @@ func main() {
 		if update.Message.Command() == "stopgame" {
 			if gameIsRunning {
 				stopChannel <- "stopgame"
-				gameIsRunning = false
 			} else {
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "No game running\nTry to write /tttgame to play tic tac toe")
 				_, err = bot.Send(msg)
@@ -112,7 +111,7 @@ func tttgame(update tgbotapi.Update, bot tgbotapi.BotAPI) tgbotapi.InlineKeyboar
 	return buttonMatrix
 }
 
-func listenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, translateUpdate chan tgbotapi.CallbackQuery, stopChannel chan string, buttonMatrix tgbotapi.InlineKeyboardMarkup) {
+func listenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, translateUpdate chan tgbotapi.CallbackQuery, stopChannel chan string, buttonMatrix tgbotapi.InlineKeyboardMarkup, gameIsRunning *bool) {
 	var messageIDsOfOccupiedSells []int
 	move := 1
 	chatID := update.Message.Chat.ID
@@ -189,6 +188,9 @@ func listenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, translateU
 					if err != nil {
 						log.Println(err)
 					}
+
+					*gameIsRunning = false
+
 					return
 				}
 			case <-stopChannel:
@@ -198,6 +200,8 @@ func listenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, translateU
 				if err != nil {
 					log.Println(err)
 				}
+
+				*gameIsRunning = false
 
 				return
 			}

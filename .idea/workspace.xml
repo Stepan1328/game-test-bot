@@ -19,9 +19,7 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="591fb071-010b-4212-9459-7d7752f32332" name="Default Changelist" comment="&quot;make some changes&quot;">
-      <change afterPath="$PROJECT_DIR$/text.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/text2.txt" afterDir="false" />
+    <list default="true" id="591fb071-010b-4212-9459-7d7752f32332" name="Default Changelist" comment="&quot;the game mechanics have been completed&quot;">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
     </list>
@@ -126,7 +124,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="&quot;make some changes&quot;" />
-    <option name="LAST_COMMIT_MESSAGE" value="&quot;make some changes&quot;" />
+    <MESSAGE value="&quot;the game mechanics have been completed&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="&quot;the game mechanics have been completed&quot;" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
