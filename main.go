@@ -5,6 +5,7 @@ import (
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
 	"strconv"
+	"time"
 )
 
 const botToken = "1608392984:AAFKp0yFvDn5ZAgpKBBHX5soc7CIqXg9Z0I"
@@ -29,7 +30,7 @@ func main() {
 	log.Println("The bot is running")
 
 	for update := range updates {
-		if update.CallbackQuery != nil {
+		if update.CallbackQuery != nil && gameIsRunning {
 			translateUpdate <- *update.CallbackQuery
 			continue
 		}
@@ -41,8 +42,11 @@ func main() {
 		fmt.Println(update.Message.Text)
 
 		if update.Message.Command() == "tttgame" && !gameIsRunning {
-			buttonMatrix := tttgame(update, *bot)
-			go listenCallbackQuery(update, *bot, translateUpdate, stopChannel, buttonMatrix, &gameIsRunning)
+			fmt.Println(update.Message.From.FirstName, update.Message.From.LastName)
+
+			buttonMatrix, msgID := tttgame(update, *bot)
+			go listenCallbackQuery(update, *bot, translateUpdate, stopChannel, buttonMatrix, msgID, &gameIsRunning)
+
 			gameIsRunning = true
 
 			continue
@@ -72,15 +76,10 @@ func main() {
 			continue
 		}
 
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Unknown command\nTry to write /tttgame to play tic tac toe")
-		_, err = bot.Send(msg)
-		if err != nil {
-			log.Println(err)
-		}
 	}
 }
 
-func tttgame(update tgbotapi.Update, bot tgbotapi.BotAPI) tgbotapi.InlineKeyboardMarkup {
+func tttgame(update tgbotapi.Update, bot tgbotapi.BotAPI) (tgbotapi.InlineKeyboardMarkup, int) {
 	chatID := update.Message.Chat.ID
 
 	msg := tgbotapi.NewMessage(chatID, "This is a tic-tac-toe field\nTo put a cross or a zero, just click on the button and its state will change\nGood luck")
@@ -103,15 +102,15 @@ func tttgame(update tgbotapi.Update, bot tgbotapi.BotAPI) tgbotapi.InlineKeyboar
 
 	msg.ReplyMarkup = buttonMatrix
 
-	_, err := bot.Send(msg)
+	msgData, err := bot.Send(msg)
 	if err != nil {
 		log.Println(err)
 	}
 
-	return buttonMatrix
+	return buttonMatrix, msgData.MessageID
 }
 
-func listenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, translateUpdate chan tgbotapi.CallbackQuery, stopChannel chan string, buttonMatrix tgbotapi.InlineKeyboardMarkup, gameIsRunning *bool) {
+func listenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, translateUpdate chan tgbotapi.CallbackQuery, stopChannel chan string, buttonMatrix tgbotapi.InlineKeyboardMarkup, msgID int, gameIsRunning *bool) {
 	var messageIDsOfOccupiedSells []int
 	move := 1
 	chatID := update.Message.Chat.ID
@@ -120,6 +119,22 @@ func listenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, translateU
 
 	crossButton := tgbotapi.NewInlineKeyboardButtonData("❌", " ")
 	zeroButton := tgbotapi.NewInlineKeyboardButtonData("⭕️", " ")
+
+	situation := Situation{PlayField: playingField}
+	motion, _ := situation.Analyze((move+1)%2+1, move)
+
+	buttonMatrix.InlineKeyboard[motion.Y][motion.X] = crossButton
+	playingField[motion.Y][motion.X] = (move+1)%2 + 1
+	move++
+
+	replymsg := tgbotapi.NewEditMessageReplyMarkup(chatID, msgID, buttonMatrix)
+
+	time.Sleep(time.Millisecond * 200)
+
+	_, err := bot.Send(replymsg)
+	if err != nil {
+		log.Println(err)
+	}
 
 	go func() {
 		for {
@@ -160,31 +175,48 @@ func listenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, translateU
 				column := (numberOfCell - 1) % 3
 				row := (numberOfCell - 1) / 3
 
-				if move%2 == 1 {
-					buttonMatrix.InlineKeyboard[row][column] = crossButton
-					playingField[row][column] = 1
-					move++
-				} else {
-					buttonMatrix.InlineKeyboard[row][column] = zeroButton
-					playingField[row][column] = 2
-					move++
-				}
+				//if move % 2 == 1 {
+				//	buttonMatrix.InlineKeyboard[row][column] = crossButton
+				//	playingField[row][column] = 1
+				//	move++
+				//} else {
+				//	buttonMatrix.InlineKeyboard[row][column] = zeroButton
+				//	playingField[row][column] = 2
+				//	move++
+				//}
+				//if move % 2 == 1 {
+				//	buttonMatrix.InlineKeyboard[row][column] = crossButton
+				//	playingField[row][column] = (move + 1) % 2 + 1
+				//	move++
+				//} else {
+				//	situation := Situation{PlayField: playingField}
+				//	motion, _ := situation.Analyze((move + 1) % 2 + 1, move)
+				//
+				//	buttonMatrix.InlineKeyboard[motion.Y][motion.X] = zeroButton
+				//	playingField[motion.Y][motion.X] = (move + 1) % 2 + 1
+				//	move++
+				//}
 
-				replymsg := tgbotapi.NewEditMessageReplyMarkup(chatID, updateCallback.Message.MessageID, buttonMatrix)
+				buttonMatrix.InlineKeyboard[row][column] = zeroButton
+				playingField[row][column] = (move+1)%2 + 1
+				move++
+
+				replymsg = tgbotapi.NewEditMessageReplyMarkup(chatID, updateCallback.Message.MessageID, buttonMatrix)
 
 				_, err = bot.Send(replymsg)
 				if err != nil {
 					log.Println(err)
 				}
 
+				win := sendWinMsg(bot, chatID, playingField, move, gameIsRunning)
+				if win {
+					return
+				}
+
 				if move > 9 {
-					for i := 0; i < 3; i++ {
-						fmt.Println(playingField[i])
-					}
+					drawMessage := tgbotapi.NewMessage(chatID, "Draw ⚔️\nLucky next time\nLet's play one more timed")
 
-					endOfGameMsg := tgbotapi.NewMessage(chatID, "Draw ⚔️\nLucky next time\nLet's play one more timed")
-
-					_, err = bot.Send(endOfGameMsg)
+					_, err = bot.Send(drawMessage)
 					if err != nil {
 						log.Println(err)
 					}
@@ -193,10 +225,46 @@ func listenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, translateU
 
 					return
 				}
+
+				situation = Situation{PlayField: playingField}
+				motion, _ = situation.Analyze((move+1)%2+1, move)
+
+				buttonMatrix.InlineKeyboard[motion.Y][motion.X] = crossButton
+				playingField[motion.Y][motion.X] = (move+1)%2 + 1
+				move++
+
+				replymsg = tgbotapi.NewEditMessageReplyMarkup(chatID, updateCallback.Message.MessageID, buttonMatrix)
+
+				time.Sleep(time.Millisecond * 300)
+
+				_, err = bot.Send(replymsg)
+				if err != nil {
+					log.Println(err)
+				}
+
+				win = sendWinMsg(bot, chatID, playingField, move, gameIsRunning)
+				if win {
+					return
+				}
+
+				if move > 9 {
+					drawMessage := tgbotapi.NewMessage(chatID, "Draw ⚔️\nLucky next time\nLet's play one more timed")
+
+					_, err = bot.Send(drawMessage)
+					if err != nil {
+						log.Println(err)
+					}
+
+					*gameIsRunning = false
+					fmt.Println("Draw")
+
+					return
+				}
+
 			case <-stopChannel:
 				stopGameMessage := tgbotapi.NewMessage(chatID, "Game stopped")
 
-				_, err := bot.Send(stopGameMessage)
+				_, err = bot.Send(stopGameMessage)
 				if err != nil {
 					log.Println(err)
 				}
@@ -207,4 +275,29 @@ func listenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, translateU
 			}
 		}
 	}()
+}
+
+func sendWinMsg(bot tgbotapi.BotAPI, chatID int64, playingField [][]int, move int, gameIsRunning *bool) bool {
+	win, _ := checkingWinner(playingField, move-1)
+
+	if win {
+		winMessage := tgbotapi.NewMessage(chatID, "")
+
+		if move%2 == 0 {
+			winMessage.Text = "Congratulations to 🔥Player 1🔥 he is the winner 🎉\nPlayer 2 don't get upset and ask for a rematch by writing /tttgame"
+		} else {
+			winMessage.Text = "Congratulations to 🔥Player 2🔥 he is the winner 🎉\nPlayer 1 don't get upset and ask for a rematch by writing /tttgame"
+		}
+
+		_, err := bot.Send(winMessage)
+		if err != nil {
+			log.Println(err)
+		}
+
+		fmt.Println("found the winner")
+		*gameIsRunning = false
+		return win
+	}
+
+	return win
 }
