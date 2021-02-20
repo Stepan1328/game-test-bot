@@ -76,6 +76,15 @@ func main() {
 			continue
 		}
 
+		if update.Message.Command() == "start" && !gameIsRunning {
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hi, if you want to play tic tac toe write /tttgame")
+			_, err = bot.Send(msg)
+			if err != nil {
+				log.Println(err)
+			}
+
+			continue
+		}
 	}
 }
 
