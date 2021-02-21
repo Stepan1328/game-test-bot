@@ -223,7 +223,7 @@ func listenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, translateU
 				}
 
 				if move > 9 {
-					drawMessage := tgbotapi.NewMessage(chatID, "Draw ⚔️\nLucky next time\nLet's play one more timed")
+					drawMessage := tgbotapi.NewMessage(chatID, "Draw ⚔️\nLucky next time\nLet's play one more timed\nWrite /tttgame")
 
 					_, err = bot.Send(drawMessage)
 					if err != nil {
@@ -257,7 +257,7 @@ func listenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, translateU
 				}
 
 				if move > 9 {
-					drawMessage := tgbotapi.NewMessage(chatID, "Draw ⚔️\nLucky next time\nLet's play one more timed")
+					drawMessage := tgbotapi.NewMessage(chatID, "Draw ⚔️\nLucky next time\nLet's play one more timed\nWrite /tttgame")
 
 					_, err = bot.Send(drawMessage)
 					if err != nil {
