@@ -49,8 +49,6 @@ func main() {
 			}
 		}
 
-		fmt.Println(gameIsRunningMap)
-
 		if update.CallbackQuery != nil && gameIsRunningMap[update.CallbackQuery.From.ID] {
 			translateUpdate <- *update.CallbackQuery
 			continue
