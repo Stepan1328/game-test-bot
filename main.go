@@ -1,16 +1,29 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
+	"os"
 	"strconv"
 	"time"
 )
 
-const botToken = "1608392984:AAFKp0yFvDn5ZAgpKBBHX5soc7CIqXg9Z0I"
-
 func main() {
+	var botToken string
+
+	file, err := os.Open("./botToken.txt")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	s := bufio.NewScanner(file)
+
+	for s.Scan() {
+		botToken = s.Text()
+	}
+
 	bot, err := tgbotapi.NewBotAPI(botToken)
 	if err != nil {
 		log.Panic(err)
