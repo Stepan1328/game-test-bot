@@ -38,12 +38,20 @@ func main() {
 
 	translateUpdate := make(chan tgbotapi.CallbackQuery)
 	stopChannel := make(chan string)
-	gameIsRunning := false
+	gameIsRunningMap := make(map[int]bool)
 
 	log.Println("The bot is running")
 
 	for update := range updates {
-		if update.CallbackQuery != nil && gameIsRunning {
+		if update.Message != nil {
+			if _, inMap := gameIsRunningMap[update.Message.From.ID]; !inMap {
+				gameIsRunningMap[update.Message.From.ID] = false
+			}
+		}
+
+		fmt.Println(gameIsRunningMap)
+
+		if update.CallbackQuery != nil && gameIsRunningMap[update.CallbackQuery.From.ID] {
 			translateUpdate <- *update.CallbackQuery
 			continue
 		}
@@ -54,22 +62,23 @@ func main() {
 
 		fmt.Println(update.Message.Text)
 
-		if update.Message.Command() == "tttgame" && !gameIsRunning {
+		if update.Message.Command() == "tttgame" && !gameIsRunningMap[update.Message.From.ID] {
 			fmt.Println(update.Message.From.FirstName, update.Message.From.LastName)
 
 			buttonMatrix, msgID := tttgame(update, *bot)
-			go listenCallbackQuery(update, *bot, translateUpdate, stopChannel, buttonMatrix, msgID, &gameIsRunning)
+			go listenCallbackQuery(update, *bot, translateUpdate, stopChannel, buttonMatrix, msgID, gameIsRunningMap)
 
-			gameIsRunning = true
+			gameIsRunningMap[update.Message.From.ID] = true
 
 			continue
 		}
 
 		if update.Message.Command() == "stopgame" {
-			if gameIsRunning {
-				stopChannel <- "stopgame"
+			if gameIsRunningMap[update.Message.From.ID] {
+				stopChannel <- strconv.Itoa(int(update.Message.Chat.ID))
 			} else {
-				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "No game running\nTry to write /tttgame to play tic tac toe")
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID,
+					"No game running\nTry to write /tttgame to play tic tac toe")
 				_, err = bot.Send(msg)
 				if err != nil {
 					log.Println(err)
@@ -79,8 +88,9 @@ func main() {
 			continue
 		}
 
-		if gameIsRunning {
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Please finish playing the game or finish it by writing \n/stopgame")
+		if gameIsRunningMap[update.Message.From.ID] {
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID,
+				"Please finish playing the game or finish it by writing \n/stopgame")
 			_, err = bot.Send(msg)
 			if err != nil {
 				log.Println(err)
@@ -89,22 +99,26 @@ func main() {
 			continue
 		}
 
-		if update.Message.Command() == "start" && !gameIsRunning {
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hi, if you want to play tic tac toe write /tttgame")
+		if update.Message.Command() == "start" && !gameIsRunningMap[update.Message.From.ID] {
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID,
+				"Hi, if you want to play tic tac toe write /tttgame")
 			_, err = bot.Send(msg)
 			if err != nil {
 				log.Println(err)
 			}
 
 			continue
+		}
+
+		if update.Message.Command() == "printMap" {
+			fmt.Println(gameIsRunningMap)
 		}
 	}
 }
 
 func tttgame(update tgbotapi.Update, bot tgbotapi.BotAPI) (tgbotapi.InlineKeyboardMarkup, int) {
-	chatID := update.Message.Chat.ID
-
-	msg := tgbotapi.NewMessage(chatID, "This is a tic-tac-toe field\nTo put a cross or a zero, just click on the button and its state will change\nGood luck")
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "This is a tic-tac-toe field\n"+
+		"To put a cross or a zero, just click on the button and its state will change\nGood luck")
 
 	button1 := tgbotapi.NewInlineKeyboardButtonData(" ", "1")
 	button2 := tgbotapi.NewInlineKeyboardButtonData(" ", "2")
@@ -132,10 +146,11 @@ func tttgame(update tgbotapi.Update, bot tgbotapi.BotAPI) (tgbotapi.InlineKeyboa
 	return buttonMatrix, msgData.MessageID
 }
 
-func listenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, translateUpdate chan tgbotapi.CallbackQuery, stopChannel chan string, buttonMatrix tgbotapi.InlineKeyboardMarkup, msgID int, gameIsRunning *bool) {
+func listenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, translateUpdate chan tgbotapi.CallbackQuery,
+	stopChannel chan string, buttonMatrix tgbotapi.InlineKeyboardMarkup, msgID int, gameIsRunning map[int]bool) {
 	var messageIDsOfOccupiedSells []int
 	move := 1
-	chatID := update.Message.Chat.ID
+	//chatID := update.Message.Chat.ID
 
 	playingField := [][]int{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
 
@@ -149,7 +164,7 @@ func listenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, translateU
 	playingField[motion.Y][motion.X] = (move+1)%2 + 1
 	move++
 
-	replymsg := tgbotapi.NewEditMessageReplyMarkup(chatID, msgID, buttonMatrix)
+	replymsg := tgbotapi.NewEditMessageReplyMarkup(update.Message.Chat.ID, msgID, buttonMatrix)
 
 	time.Sleep(time.Millisecond * 200)
 
@@ -162,6 +177,7 @@ func listenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, translateU
 		for {
 			select {
 			case updateCallback := <-translateUpdate:
+				chatID := updateCallback.Message.Chat.ID
 				if updateCallback.Data == " " {
 					fmt.Println("the occupied cell is pressed")
 
@@ -230,20 +246,22 @@ func listenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, translateU
 					log.Println(err)
 				}
 
-				win := sendWinMsg(bot, chatID, playingField, move, gameIsRunning)
+				win := sendWinMsg(bot, chatID, playingField, move)
 				if win {
+					gameIsRunning[update.Message.From.ID] = false
 					return
 				}
 
 				if move > 9 {
-					drawMessage := tgbotapi.NewMessage(chatID, "Draw ⚔️\nLucky next time\nLet's play one more timed, write /tttgame")
+					drawMessage := tgbotapi.NewMessage(chatID,
+						"Draw ⚔️\nLucky next time\nLet's play one more timed, write /tttgame")
 
 					_, err = bot.Send(drawMessage)
 					if err != nil {
 						log.Println(err)
 					}
 
-					*gameIsRunning = false
+					gameIsRunning[update.Message.From.ID] = false
 
 					return
 				}
@@ -264,26 +282,29 @@ func listenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, translateU
 					log.Println(err)
 				}
 
-				win = sendWinMsg(bot, chatID, playingField, move, gameIsRunning)
+				win = sendWinMsg(bot, chatID, playingField, move)
 				if win {
+					gameIsRunning[update.Message.From.ID] = false
 					return
 				}
 
 				if move > 9 {
-					drawMessage := tgbotapi.NewMessage(chatID, "Draw ⚔️\nLucky next time\nLet's play one more timed, write /tttgame")
+					drawMessage := tgbotapi.NewMessage(chatID,
+						"Draw ⚔️\nLucky next time\nLet's play one more timed, write /tttgame")
 
 					_, err = bot.Send(drawMessage)
 					if err != nil {
 						log.Println(err)
 					}
 
-					*gameIsRunning = false
+					gameIsRunning[update.Message.From.ID] = false
 					fmt.Println("Draw")
 
 					return
 				}
 
-			case <-stopChannel:
+			case strChatID := <-stopChannel:
+				chatID, _ := strconv.ParseInt(strChatID, 10, 64)
 				stopGameMessage := tgbotapi.NewMessage(chatID, "Game stopped")
 
 				_, err = bot.Send(stopGameMessage)
@@ -291,7 +312,7 @@ func listenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, translateU
 					log.Println(err)
 				}
 
-				*gameIsRunning = false
+				gameIsRunning[update.Message.From.ID] = false
 
 				return
 			}
@@ -299,16 +320,18 @@ func listenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, translateU
 	}()
 }
 
-func sendWinMsg(bot tgbotapi.BotAPI, chatID int64, playingField [][]int, move int, gameIsRunning *bool) bool {
+func sendWinMsg(bot tgbotapi.BotAPI, chatID int64, playingField [][]int, move int) bool {
 	win, _ := checkingWinner(playingField, move-1)
 
 	if win {
 		winMessage := tgbotapi.NewMessage(chatID, "")
 
 		if move%2 == 0 {
-			winMessage.Text = "Congratulations to 🔥Player 1🔥 he is the winner 🎉\nPlayer 2 don't get upset and ask for a rematch by writing /tttgame"
+			winMessage.Text = "Congratulations to 🔥Player 1🔥 he is the winner 🎉\n" +
+				"Player 2 don't get upset and ask for a rematch by writing /tttgame"
 		} else {
-			winMessage.Text = "Congratulations to 🔥Player 2🔥 he is the winner 🎉\nPlayer 1 don't get upset and ask for a rematch by writing /tttgame"
+			winMessage.Text = "Congratulations to 🔥Player 2🔥 he is the winner 🎉\n" +
+				"Player 1 don't get upset and ask for a rematch by writing /tttgame"
 		}
 
 		_, err := bot.Send(winMessage)
@@ -317,7 +340,6 @@ func sendWinMsg(bot tgbotapi.BotAPI, chatID int64, playingField [][]int, move in
 		}
 
 		fmt.Println("found the winner")
-		*gameIsRunning = false
 		return win
 	}
 
