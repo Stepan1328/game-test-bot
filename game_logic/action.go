@@ -1,7 +1,6 @@
-package main
+package game_logic
 
 import (
-	"fmt"
 	"math/rand"
 )
 
@@ -19,7 +18,7 @@ func (s Situation) Analyze(player int, motion int) (Action, int) {
 			if s.PlayField[i][j] == 0 && (motion-1)%2+1 == player {
 				s.PlayField[i][j] = (motion-1)%2 + 1
 
-				win, _ := checkingWinner(s.PlayField, motion)
+				win, _ := CheckingWinner(s.PlayField, motion)
 				if win {
 					winMoves = append(winMoves, Action{i, j})
 				}
@@ -37,11 +36,8 @@ func (s Situation) Analyze(player int, motion int) (Action, int) {
 		for j := 0; j < 3; j++ {
 			if s.PlayField[i][j] == 0 {
 				s.PlayField[i][j] = (motion-1)%2 + 1
-				//for k := 0; k < 3; k++ {
-				//	fmt.Println(s.PlayField[k])
-				//}
 
-				win, winPlayer := checkingWinner(s.PlayField, motion)
+				win, winPlayer := CheckingWinner(s.PlayField, motion)
 				if win && winPlayer == player {
 					winMoves = append(winMoves, Action{i, j})
 				} else if win {
@@ -66,12 +62,11 @@ func (s Situation) Analyze(player int, motion int) (Action, int) {
 		}
 	}
 
-	chance := 1
+	chance := 5
 
 	if player == (motion+1)%2+1 {
 		randNum := rand.Intn(chance)
 		if randNum == 1 && len(losingMoves) > 0 {
-			fmt.Println("Loose")
 			return losingMoves[rand.Intn(len(losingMoves))], 0
 		}
 
@@ -87,7 +82,6 @@ func (s Situation) Analyze(player int, motion int) (Action, int) {
 	} else {
 		randNum := rand.Intn(chance)
 		if randNum == 1 && len(winMoves) > 0 {
-			fmt.Println("Loose")
 			return winMoves[rand.Intn(len(winMoves))], 0
 		}
 
