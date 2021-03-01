@@ -32,6 +32,9 @@ func (s Situation) Analyze(player int, motion int) (Action, int) {
 		return winMoves[rand.Intn(len(winMoves))], 2
 	}
 
+	//winMoves = make([]Action, 0)
+	//fmt.Println(winMoves)
+
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
 			if s.PlayField[i][j] == 0 {
@@ -62,14 +65,10 @@ func (s Situation) Analyze(player int, motion int) (Action, int) {
 		}
 	}
 
-	chance := 5
-
+	//fmt.Println(losingMoves)
+	//fmt.Println(drawMoves)
+	//fmt.Println(winMoves)
 	if player == (motion+1)%2+1 {
-		randNum := rand.Intn(chance)
-		if randNum == 1 && len(losingMoves) > 0 {
-			return losingMoves[rand.Intn(len(losingMoves))], 0
-		}
-
 		if len(winMoves) > 0 {
 			return winMoves[rand.Intn(len(winMoves))], 2
 		}
@@ -80,11 +79,6 @@ func (s Situation) Analyze(player int, motion int) (Action, int) {
 
 		return losingMoves[rand.Intn(len(losingMoves))], 0
 	} else {
-		randNum := rand.Intn(chance)
-		if randNum == 1 && len(winMoves) > 0 {
-			return winMoves[rand.Intn(len(winMoves))], 0
-		}
-
 		if len(losingMoves) > 0 {
 			return losingMoves[rand.Intn(len(losingMoves))], 2
 		}
@@ -101,31 +95,3 @@ type Action struct {
 	Y int
 	X int
 }
-
-//func checkingWinner(playField [][]int, move int) (bool, int) {
-//	victory := false
-//
-//	player := (move - 1) % 2 + 1
-//
-//	for i := 0; i < 3; i ++ {
-//		if playField[i][0] == player && playField[i][1] == player && playField[i][2] == player {
-//			victory = true
-//			return victory, player
-//		} else if playField[0][i] == player && playField[1][i] == player && playField[2][i] == player {
-//			victory = true
-//			return victory, player
-//		}
-//	}
-//
-//	if playField[0][0] == player && playField[1][1] == player && playField[2][2] == player {
-//		victory = true
-//		return victory, player
-//	}
-//
-//	if playField[0][2] == player && playField[1][1] == player && playField[2][0] == player {
-//		victory = true
-//		return victory, player
-//	}
-//
-//	return victory, player
-//}
