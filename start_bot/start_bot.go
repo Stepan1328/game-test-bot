@@ -1,4 +1,4 @@
-package main
+package start_bot
 
 import (
 	"bufio"
@@ -11,7 +11,7 @@ import (
 func StartBot() (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {
 	var botToken string
 
-	file, err := os.Open("./botToken.txt")
+	file, err := os.Open("./customers/botToken.txt")
 	if err != nil {
 		fmt.Println(err)
 	}
