@@ -5,7 +5,12 @@ import (
 )
 
 type Situation struct {
-	PlayField [][]int
+	PlayField [3][3]int
+}
+
+type Action struct {
+	Y int
+	X int
 }
 
 func (s Situation) Analyze(player int, motion int) (Action, int) {
@@ -31,9 +36,6 @@ func (s Situation) Analyze(player int, motion int) (Action, int) {
 	if len(winMoves) > 0 {
 		return winMoves[rand.Intn(len(winMoves))], 2
 	}
-
-	//winMoves = make([]Action, 0)
-	//fmt.Println(winMoves)
 
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
@@ -65,9 +67,6 @@ func (s Situation) Analyze(player int, motion int) (Action, int) {
 		}
 	}
 
-	//fmt.Println(losingMoves)
-	//fmt.Println(drawMoves)
-	//fmt.Println(winMoves)
 	if player == (motion+1)%2+1 {
 		if len(winMoves) > 0 {
 			return winMoves[rand.Intn(len(winMoves))], 2
@@ -89,9 +88,4 @@ func (s Situation) Analyze(player int, motion int) (Action, int) {
 
 		return winMoves[rand.Intn(len(winMoves))], 0
 	}
-}
-
-type Action struct {
-	Y int
-	X int
 }

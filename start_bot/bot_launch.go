@@ -26,9 +26,6 @@ func CheckUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 	Message := update.Message
 	runGame := cust.Players[Message.From.ID].RunGame
 	fmt.Println(Message.Text)
-	for i := 0; i < 3; i++ {
-		fmt.Println(cust.Players[Message.From.ID].PlayingField[i])
-	}
 
 	if Message.Command() != "" && !runGame {
 		RecognitionCommand(update, bot)
@@ -49,14 +46,14 @@ func CheckUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 func CheckPlayer(update tgbotapi.Update) bool {
 	if update.Message != nil {
 		if _, inBase := cust.Players[update.Message.From.ID]; !inBase {
-			cust.Players[update.Message.From.ID] = &cust.Defuser
+			cust.Players[update.Message.From.ID] = &cust.UsersStatistic{
+				RunGame:      false,
+				PlayingField: [3][3]int{},
+			}
 		}
 	}
 
 	if update.CallbackQuery != nil && cust.Players[update.CallbackQuery.From.ID].RunGame {
-		for i := 0; i < 3; i++ {
-			fmt.Println(cust.Players[update.CallbackQuery.From.ID].PlayingField[i])
-		}
 		cust.TranslateUpdate <- *update.CallbackQuery
 		return true
 	}

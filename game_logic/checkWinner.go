@@ -1,6 +1,6 @@
 package game_logic
 
-func CheckingWinner(playField [][]int, move int) (bool, int) {
+func CheckingWinner(playField [3][3]int, move int) (bool, int) {
 	victory := false
 
 	player := (move-1)%2 + 1

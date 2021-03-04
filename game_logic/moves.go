@@ -42,16 +42,6 @@ func Tttgame(update tgbotapi.Update, bot tgbotapi.BotAPI) (tgbotapi.InlineKeyboa
 func ListenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, buttonMatrix tgbotapi.InlineKeyboardMarkup, msgID int) {
 	move := 1
 
-	for i := 0; i < 3; i++ {
-		fmt.Println(cust.Players[update.Message.From.ID].PlayingField[i])
-	}
-	fmt.Println("==")
-	cust.Players[update.Message.From.ID].PlayingField = [][]int{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
-	for i := 0; i < 3; i++ {
-		fmt.Println(cust.Players[update.Message.From.ID].PlayingField[i])
-	}
-	fmt.Println("==")
-
 	crossButton := tgbotapi.NewInlineKeyboardButtonData("❌", " ")
 
 	situation := Situation{PlayField: cust.Players[update.Message.From.ID].PlayingField}
@@ -60,13 +50,9 @@ func ListenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, buttonMatr
 	buttonMatrix.InlineKeyboard[motion.Y][motion.X] = crossButton
 	cust.Players[update.Message.From.ID].PlayingField[motion.Y][motion.X] = (move+1)%2 + 1
 	move++
-	for i := 0; i < 3; i++ {
-		fmt.Println(cust.Players[update.Message.From.ID].PlayingField[i])
-	}
 
 	replymsg := tgbotapi.NewEditMessageReplyMarkup(update.Message.Chat.ID, msgID, buttonMatrix)
-
-	time.Sleep(time.Millisecond * 200)
+	//time.Sleep(time.Millisecond * 200)
 
 	if _, err := bot.Send(replymsg); err != nil {
 		log.Println(err)
@@ -74,15 +60,17 @@ func ListenCallbackQuery(update tgbotapi.Update, bot tgbotapi.BotAPI, buttonMatr
 
 	go func() {
 		for {
-			MakeDoubleMove(bot, buttonMatrix, &move)
+			if MakeDoubleMove(bot, buttonMatrix, &move) {
+				return
+			}
 		}
 	}()
 }
 
-func MakeDoubleMove(bot tgbotapi.BotAPI, buttonMatrix tgbotapi.InlineKeyboardMarkup, move *int) {
+func MakeDoubleMove(bot tgbotapi.BotAPI, buttonMatrix tgbotapi.InlineKeyboardMarkup, move *int) bool {
 	crossButton := tgbotapi.NewInlineKeyboardButtonData("❌", " ")
 	zeroButton := tgbotapi.NewInlineKeyboardButtonData("⭕️", " ")
-	// TODO: fix fields
+
 	select {
 	case updateCallback := <-cust.TranslateUpdate:
 		chatID := updateCallback.Message.Chat.ID
@@ -98,7 +86,7 @@ func MakeDoubleMove(bot tgbotapi.BotAPI, buttonMatrix tgbotapi.InlineKeyboardMar
 
 			cust.OccupiedSells = append(cust.OccupiedSells, msgData.MessageID)
 
-			return
+			return false
 		}
 
 		for len(cust.OccupiedSells) > 0 {
@@ -133,8 +121,8 @@ func MakeDoubleMove(bot tgbotapi.BotAPI, buttonMatrix tgbotapi.InlineKeyboardMar
 
 		if sendWinMsg(bot, chatID, updateCallback.From.ID, *move) {
 			cust.Players[updateCallback.From.ID].RunGame = false
-			cust.Players[updateCallback.From.ID].PlayingField = cust.NilPlayField
-			return
+			cust.Players[updateCallback.From.ID].PlayingField = [3][3]int{}
+			return true
 		}
 
 		if *move > 9 {
@@ -146,20 +134,19 @@ func MakeDoubleMove(bot tgbotapi.BotAPI, buttonMatrix tgbotapi.InlineKeyboardMar
 			}
 
 			cust.Players[updateCallback.From.ID].RunGame = false
-			cust.Players[updateCallback.From.ID].PlayingField = cust.NilPlayField
+			cust.Players[updateCallback.From.ID].PlayingField = [3][3]int{}
 
-			return
+			return true
 		}
 
-		situation := Situation{PlayField: cust.NilPlayField}
+		situation := Situation{PlayField: cust.Players[updateCallback.From.ID].PlayingField}
 		motion, _ := situation.Analyze((*move+1)%2+1, *move)
 
 		buttonMatrix.InlineKeyboard[motion.Y][motion.X] = crossButton
-		cust.Players[updateCallback.From.ID].PlayingField[row][column] = (*move+1)%2 + 1
+		cust.Players[updateCallback.From.ID].PlayingField[motion.Y][motion.X] = (*move+1)%2 + 1
 		*move++
 
 		replymsg = tgbotapi.NewEditMessageReplyMarkup(chatID, updateCallback.Message.MessageID, buttonMatrix)
-
 		time.Sleep(time.Millisecond * 300)
 
 		_, err = bot.Send(replymsg)
@@ -169,8 +156,8 @@ func MakeDoubleMove(bot tgbotapi.BotAPI, buttonMatrix tgbotapi.InlineKeyboardMar
 
 		if sendWinMsg(bot, chatID, updateCallback.From.ID, *move) {
 			cust.Players[updateCallback.From.ID].RunGame = false
-			cust.Players[updateCallback.From.ID].PlayingField = cust.NilPlayField
-			return
+			cust.Players[updateCallback.From.ID].PlayingField = [3][3]int{}
+			return true
 		}
 
 		if *move > 9 {
@@ -183,10 +170,10 @@ func MakeDoubleMove(bot tgbotapi.BotAPI, buttonMatrix tgbotapi.InlineKeyboardMar
 			}
 
 			cust.Players[updateCallback.From.ID].RunGame = false
-			cust.Players[updateCallback.From.ID].PlayingField = cust.NilPlayField
+			cust.Players[updateCallback.From.ID].PlayingField = [3][3]int{}
 			fmt.Println("Draw")
 
-			return
+			return true
 		}
 
 	case Message := <-cust.StopChannel:
@@ -197,10 +184,12 @@ func MakeDoubleMove(bot tgbotapi.BotAPI, buttonMatrix tgbotapi.InlineKeyboardMar
 		}
 
 		cust.Players[Message.From.ID].RunGame = false
-		cust.Players[Message.From.ID].PlayingField = cust.NilPlayField
+		cust.Players[Message.From.ID].PlayingField = [3][3]int{}
 
-		return
+		return true
 	}
+
+	return false
 }
 
 func sendWinMsg(bot tgbotapi.BotAPI, chatID int64, playerID int, move int) bool {

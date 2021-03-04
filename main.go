@@ -1,9 +1,9 @@
 package main
 
-import "github.com/Stepan1328/game-test-bot/start_bot"
+import start "github.com/Stepan1328/game-test-bot/start_bot"
 
 func main() {
-	bot, updates := start_bot.StartBot()
+	bot, updates := start.StartBot()
 
-	start_bot.ActionsWithUpdates(updates, bot)
+	start.ActionsWithUpdates(updates, bot)
 }

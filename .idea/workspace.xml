@@ -21,16 +21,13 @@
   <component name="ChangeListManager">
     <list default="true" id="591fb071-010b-4212-9459-7d7752f32332" name="Default Changelist" comment="&quot;the game mechanics have been completed&quot;">
       <change afterPath="$PROJECT_DIR$/customers/botToken.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/customers/chanels.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/customers/parameters.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/game_logic/moves.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/reply_msg/update_msg.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/start_bot/bot_launch.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot_launch.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/game_logic/checkingTheWinner.go" beforeDir="false" afterPath="$PROJECT_DIR$/game_logic/checkWinner.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/customers/parameters.go" beforeDir="false" afterPath="$PROJECT_DIR$/customers/parameters.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game_logic/action.go" beforeDir="false" afterPath="$PROJECT_DIR$/game_logic/action.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game_logic/checkWinner.go" beforeDir="false" afterPath="$PROJECT_DIR$/game_logic/checkWinner.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game_logic/moves.go" beforeDir="false" afterPath="$PROJECT_DIR$/game_logic/moves.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/start_bot.go" beforeDir="false" afterPath="$PROJECT_DIR$/start_bot/start_bot.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/start_bot/bot_launch.go" beforeDir="false" afterPath="$PROJECT_DIR$/start_bot/bot_launch.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -158,12 +155,12 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="&quot;make some changes&quot;" />
     <MESSAGE value="&quot;the game mechanics have been completed&quot;" />
     <MESSAGE value="&quot;change the parallel game&quot;" />
     <MESSAGE value="&quot;functions are distributed&quot;" />
     <MESSAGE value="&quot;make changes&quot;" />
-    <option name="LAST_COMMIT_MESSAGE" value="&quot;make changes&quot;" />
+    <MESSAGE value="&quot;make some changes&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="&quot;make some changes&quot;" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
