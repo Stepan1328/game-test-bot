@@ -1,4 +1,4 @@
-package start_bot
+package main
 
 import (
 	"fmt"
@@ -38,7 +38,7 @@ func CheckUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 	}
 
 	if runGame {
-		UnfinishedGameMsg(Message, bot)
+		UnfinishedGameMsg(Message.Chat.ID, bot)
 		return
 	}
 }
@@ -46,10 +46,7 @@ func CheckUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 func CheckPlayer(update tgbotapi.Update) bool {
 	if update.Message != nil {
 		if _, inBase := cust.Players[update.Message.From.ID]; !inBase {
-			cust.Players[update.Message.From.ID] = &cust.UsersStatistic{
-				RunGame:      false,
-				PlayingField: [3][3]int{},
-			}
+			addToBase(update.Message.From.ID)
 		}
 	}
 
@@ -61,11 +58,17 @@ func CheckPlayer(update tgbotapi.Update) bool {
 	return false
 }
 
+func addToBase(PlayerID int) {
+	cust.Players[PlayerID] = &cust.UsersStatistic{
+		PlayingField: [3][3]int{},
+	}
+}
+
 func GameLaunch(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 	fmt.Println(update.Message.From.FirstName, update.Message.From.LastName)
 
-	buttonMatrix, msgID := game_logic.Tttgame(update, *bot)
-	go game_logic.ListenCallbackQuery(update, *bot, buttonMatrix, msgID)
+	msgID := game_logic.Tttgame(update, *bot)
+	go game_logic.ListenCallbackQuery(update, *bot, msgID)
 
 	if _, ok := cust.Players[update.Message.From.ID]; ok {
 		cust.Players[update.Message.From.ID].RunGame = true
@@ -96,8 +99,8 @@ func StartMsg(Message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 	}
 }
 
-func UnfinishedGameMsg(Message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
-	msg := tgbotapi.NewMessage(Message.Chat.ID,
+func UnfinishedGameMsg(ChatID int64, bot *tgbotapi.BotAPI) {
+	msg := tgbotapi.NewMessage(ChatID,
 		"Please finish playing the game or finish it by writing \n/stopgame")
 
 	if _, err := bot.Send(msg); err != nil {
