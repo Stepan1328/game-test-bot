@@ -19,15 +19,17 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="591fb071-010b-4212-9459-7d7752f32332" name="Default Changelist" comment="&quot;the game mechanics have been completed&quot;">
-      <change afterPath="$PROJECT_DIR$/customers/botToken.txt" afterDir="false" />
+    <list default="true" id="591fb071-010b-4212-9459-7d7752f32332" name="Default Changelist" comment="&quot;Fixed parallel game launch errors&quot;">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/botToken.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/GameTestbot.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/customers/parameters.go" beforeDir="false" afterPath="$PROJECT_DIR$/customers/parameters.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game_logic/action.go" beforeDir="false" afterPath="$PROJECT_DIR$/game_logic/action.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game_logic/checkWinner.go" beforeDir="false" afterPath="$PROJECT_DIR$/game_logic/checkWinner.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game_logic/moves.go" beforeDir="false" afterPath="$PROJECT_DIR$/game_logic/moves.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/start_bot/bot_launch.go" beforeDir="false" afterPath="$PROJECT_DIR$/start_bot/bot_launch.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/start_bot/bot_launch.go" beforeDir="false" afterPath="$PROJECT_DIR$/bot_launch.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,10 +79,10 @@
       <recent name="$PROJECT_DIR$" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/start_bot" />
       <recent name="$PROJECT_DIR$/customers" />
       <recent name="$PROJECT_DIR$/game_logic" />
-      <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/syntheticIntellect" />
     </key>
   </component>
@@ -160,7 +162,8 @@
     <MESSAGE value="&quot;functions are distributed&quot;" />
     <MESSAGE value="&quot;make changes&quot;" />
     <MESSAGE value="&quot;make some changes&quot;" />
-    <option name="LAST_COMMIT_MESSAGE" value="&quot;make some changes&quot;" />
+    <MESSAGE value="&quot;Fixed parallel game launch errors&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="&quot;Fixed parallel game launch errors&quot;" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
