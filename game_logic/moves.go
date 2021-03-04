@@ -201,7 +201,7 @@ func parseMarkUp(playerID int) tgbotapi.InlineKeyboardMarkup {
 	var masOfRow [3][]tgbotapi.InlineKeyboardButton
 
 	for i := 1; i <= 9; i++ {
-		switch cust.Players[playerID].PlayingField[(i-1)%3][(i-1)/3] {
+		switch cust.Players[playerID].PlayingField[(i-1)/3][(i-1)%3] {
 		case 0:
 			button := tgbotapi.NewInlineKeyboardButtonData(" ", strconv.Itoa(i))
 			masOfButton[i-1] = button
