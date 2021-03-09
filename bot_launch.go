@@ -8,13 +8,13 @@ import (
 	"log"
 )
 
-func ActionsWithUpdates(updates tgbotapi.UpdatesChannel, bot *tgbotapi.BotAPI) {
-	for update := range updates {
-		CheckUpdate(update, bot)
+func ActionsWithUpdates(updates *tgbotapi.UpdatesChannel, bot *tgbotapi.BotAPI) {
+	for update := range *updates {
+		CheckUpdate(&update, bot)
 	}
 }
 
-func CheckUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
+func CheckUpdate(update *tgbotapi.Update, bot *tgbotapi.BotAPI) {
 	if update.Message == nil && update.CallbackQuery == nil {
 		return
 	}
@@ -24,6 +24,10 @@ func CheckUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 	}
 
 	Message := update.Message
+	if Message == nil {
+		irrelevantField(bot, update.CallbackQuery.Message.Chat.ID)
+		return
+	}
 	runGame := cust.Players[Message.From.ID].RunGame
 	fmt.Println(Message.Text)
 
@@ -43,7 +47,7 @@ func CheckUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 	}
 }
 
-func CheckPlayer(update tgbotapi.Update) bool {
+func CheckPlayer(update *tgbotapi.Update) bool {
 	if update.Message != nil {
 		if _, inBase := cust.Players[update.Message.From.ID]; !inBase {
 			addToBase(update.Message.From.ID)
@@ -60,15 +64,47 @@ func CheckPlayer(update tgbotapi.Update) bool {
 
 func addToBase(PlayerID int) {
 	cust.Players[PlayerID] = &cust.UsersStatistic{
-		PlayingField: [3][3]int{},
+		Field: &cust.Field{
+			PlayingField: [3][3]int{},
+			Move:         1,
+		},
 	}
 }
 
-func GameLaunch(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
+func StopGame(Message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
+	if cust.Players[Message.From.ID].RunGame {
+		cust.StopChannel <- *Message
+	} else {
+		msg := tgbotapi.NewMessage(Message.Chat.ID, cust.LangMap["norungame"])
+
+		if _, err := bot.Send(msg); err != nil {
+			log.Println(err)
+		}
+	}
+}
+
+func ChangeSide(update *tgbotapi.Update, bot *tgbotapi.BotAPI) {
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+
+	if cust.Players[update.Message.From.ID].FirstMove {
+		cust.Players[update.Message.From.ID].FirstMove = false
+		msg.Text = "Now you play for ⭕"
+	} else {
+		cust.Players[update.Message.From.ID].FirstMove = true
+		msg.Text = "Now you play for ❌"
+	}
+
+	if _, err := bot.Send(msg); err != nil {
+		log.Println(err)
+	}
+}
+
+func GameLaunch(update *tgbotapi.Update, bot *tgbotapi.BotAPI) {
 	fmt.Println(update.Message.From.FirstName, update.Message.From.LastName)
 
-	msgID := game_logic.Tttgame(update, *bot)
-	go game_logic.ListenCallbackQuery(update, *bot, msgID)
+	msgID := game_logic.Tttgame(update, bot)
+	cust.Players[update.Message.From.ID].ChatID = update.Message.Chat.ID
+	go game_logic.ListenCallbackQuery(update, bot, msgID)
 
 	if _, ok := cust.Players[update.Message.From.ID]; ok {
 		cust.Players[update.Message.From.ID].RunGame = true
@@ -77,22 +113,8 @@ func GameLaunch(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 	}
 }
 
-func StopGame(Message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
-	if cust.Players[Message.From.ID].RunGame {
-		cust.StopChannel <- *Message
-	} else {
-		msg := tgbotapi.NewMessage(Message.Chat.ID,
-			"No game running\nTry to write /tttgame to play tic tac toe")
-
-		if _, err := bot.Send(msg); err != nil {
-			log.Println(err)
-		}
-	}
-}
-
 func StartMsg(Message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
-	msg := tgbotapi.NewMessage(Message.Chat.ID,
-		"Hi, if you want to play tic tac toe write /tttgame")
+	msg := tgbotapi.NewMessage(Message.Chat.ID, cust.LangMap["start"])
 
 	if _, err := bot.Send(msg); err != nil {
 		log.Println(err)
@@ -100,18 +122,26 @@ func StartMsg(Message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 }
 
 func UnfinishedGameMsg(ChatID int64, bot *tgbotapi.BotAPI) {
-	msg := tgbotapi.NewMessage(ChatID,
-		"Please finish playing the game or finish it by writing \n/stopgame")
+	msg := tgbotapi.NewMessage(ChatID, cust.LangMap["unfinished"])
 
 	if _, err := bot.Send(msg); err != nil {
 		log.Println(err)
 	}
 }
 
-func RecognitionCommand(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
-	switch update.Message.Command() {
-	case "tttgame":
+func irrelevantField(bot *tgbotapi.BotAPI, ChatID int64) {
+	msg := tgbotapi.NewMessage(ChatID, cust.LangMap["irrelevant_field"])
 
+	if _, err := bot.Send(msg); err != nil {
+		log.Println(err)
+	}
+}
+
+func RecognitionCommand(update *tgbotapi.Update, bot *tgbotapi.BotAPI) {
+	switch update.Message.Command() {
+	case "changeside":
+		ChangeSide(update, bot)
+	case "tttgame":
 		GameLaunch(update, bot)
 	case "start":
 		StartMsg(update.Message, bot)
