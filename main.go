@@ -1,17 +1,18 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
+	"encoding/json"
+	cust "github.com/Stepan1328/game-test-bot/customers"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
 	"os"
 )
 
 func main() {
+	parseMap()
 	bot, updates := startBot()
 
-	ActionsWithUpdates(updates, bot)
+	ActionsWithUpdates(&updates, bot)
 }
 
 func startBot() (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {
@@ -35,17 +36,12 @@ func startBot() (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {
 }
 
 func takeBotToken() string {
-	var botToken string
+	content, _ := os.ReadFile("./botToken.txt")
+	return string(content)
+}
 
-	file, err := os.Open("./botToken.txt")
-	if err != nil {
-		fmt.Println(err)
-	}
+func parseMap() {
+	bytes, _ := os.ReadFile("./assets/en.json")
 
-	s := bufio.NewScanner(file)
-	for s.Scan() {
-		botToken = s.Text()
-	}
-
-	return botToken
+	_ = json.Unmarshal(bytes, &cust.LangMap)
 }

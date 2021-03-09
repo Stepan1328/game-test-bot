@@ -1,0 +1,11 @@
+{
+    "start": "Hi, if you want to play tic tac toe write /tttgame",
+    "main": "This is a tic-tac-toe field\nTo put a cross or a zero, just click on the button and its state will change\nGood luck",
+    "irrelevant_field": "Please play on the current field",
+    "draw": "Draw ⚔️\nLucky next time\nLet's play one more timed, write /tttgame",
+    "occupied_cell": "This cell is already occupied\nSelect another cell",
+    "win_cross": "Congratulations to \uD83D\uDD25❌\uD83D\uDD25 he is the winner \uD83C\uDF89\nPlayer 2 don't be upset and ask for a rematch by writing /tttgame",
+    "win_zero": "Congratulations to \uD83D\uDD25⭕\uD83D\uDD25 he is the winner \uD83C\uDF89\nPlayer 1 don't be upset and ask for a rematch by writing /tttgame",
+    "unfinished": "Please finish playing the game or finish it by writing \n/stopgame",
+    "norungame": "No game running\nTry to write /tttgame to play tic tac toe"
+}
