@@ -1,15 +1,12 @@
 package main
 
 import (
-	"encoding/json"
-	cust "github.com/Stepan1328/game-test-bot/customers"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
 	"os"
 )
 
 func main() {
-	parseMap()
 	bot, updates := startBot()
 
 	ActionsWithUpdates(&updates, bot)
@@ -38,10 +35,4 @@ func startBot() (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {
 func takeBotToken() string {
 	content, _ := os.ReadFile("./botToken.txt")
 	return string(content)
-}
-
-func parseMap() {
-	bytes, _ := os.ReadFile("./assets/en.json")
-
-	_ = json.Unmarshal(bytes, &cust.LangMap)
 }

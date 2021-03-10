@@ -1,10 +1,12 @@
 package game_logic
 
 import (
+	"encoding/json"
 	"fmt"
 	cust "github.com/Stepan1328/game-test-bot/customers"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
+	"os"
 	"strconv"
 )
 
@@ -13,8 +15,8 @@ var (
 	zeroButton  = tgbotapi.NewInlineKeyboardButtonData("⭕️", " ")
 )
 
-func Tttgame(update *tgbotapi.Update, bot *tgbotapi.BotAPI) int {
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, cust.LangMap["main"])
+func Tttgame(bot *tgbotapi.BotAPI, update *tgbotapi.Update) int {
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, cust.Players[update.Message.From.ID].Location.Dictionary["main"])
 
 	msg.ReplyMarkup = parseMarkUp(update.Message.From.ID)
 
@@ -61,7 +63,7 @@ func motion(bot *tgbotapi.BotAPI) bool {
 func makeDoubleMove(bot *tgbotapi.BotAPI, updateCallback tgbotapi.CallbackQuery) bool {
 	chatID := updateCallback.Message.Chat.ID
 	if updateCallback.Data == " " {
-		occupiedSell(bot, chatID)
+		occupiedSell(bot, chatID, updateCallback.From.ID)
 		return false
 	}
 
@@ -74,20 +76,8 @@ func makeDoubleMove(bot *tgbotapi.BotAPI, updateCallback tgbotapi.CallbackQuery)
 	return botMove(bot, updateCallback.From.ID, updateCallback.Message.MessageID)
 }
 
-func deleteMessage(bot *tgbotapi.BotAPI, chatID int64) {
-	for len(cust.OccupiedSells) > 0 {
-		deleteMsg := tgbotapi.NewDeleteMessage(chatID, cust.OccupiedSells[0])
-
-		if _, err := bot.Send(deleteMsg); err != nil {
-			log.Println(err)
-		}
-
-		cust.OccupiedSells = cust.OccupiedSells[1:]
-	}
-}
-
-func occupiedSell(bot *tgbotapi.BotAPI, chatID int64) {
-	replymsg := tgbotapi.NewMessage(chatID, cust.LangMap["occupied_cell"])
+func occupiedSell(bot *tgbotapi.BotAPI, chatID int64, playerID int) {
+	replymsg := tgbotapi.NewMessage(chatID, cust.Players[playerID].Location.Dictionary["occupied_cell"])
 
 	msgData, err := bot.Send(replymsg)
 	if err != nil {
@@ -163,8 +153,27 @@ func checkSituation(bot *tgbotapi.BotAPI, playerID int) bool {
 	return false
 }
 
+func ParseMap(playerID int) {
+	lang := cust.Players[playerID].Location.Language
+	bytes, _ := os.ReadFile("./assets/" + lang + ".json")
+
+	_ = json.Unmarshal(bytes, &cust.Players[playerID].Location.Dictionary)
+}
+
+func deleteMessage(bot *tgbotapi.BotAPI, chatID int64) {
+	for len(cust.OccupiedSells) > 0 {
+		deleteMsg := tgbotapi.NewDeleteMessage(chatID, cust.OccupiedSells[0])
+
+		if _, err := bot.Send(deleteMsg); err != nil {
+			log.Println(err)
+		}
+
+		cust.OccupiedSells = cust.OccupiedSells[1:]
+	}
+}
+
 func sendDrawMsg(bot *tgbotapi.BotAPI, playerID int) {
-	drawMessage := tgbotapi.NewMessage(cust.Players[playerID].ChatID, cust.LangMap["draw"])
+	drawMessage := tgbotapi.NewMessage(cust.Players[playerID].ChatID, cust.Players[playerID].Location.Dictionary["draw"])
 
 	if _, err := bot.Send(drawMessage); err != nil {
 		log.Println(err)
@@ -184,9 +193,9 @@ func sendWinMsg(bot *tgbotapi.BotAPI, playerID int) bool {
 	winMessage := tgbotapi.NewMessage(cust.Players[playerID].ChatID, "")
 
 	if move%2 == 0 {
-		winMessage.Text = cust.LangMap["win_cross"]
+		winMessage.Text = cust.Players[playerID].Location.Dictionary["win_cross"]
 	} else {
-		winMessage.Text = cust.LangMap["win_zero"]
+		winMessage.Text = cust.Players[playerID].Location.Dictionary["win_zero"]
 	}
 
 	if _, err := bot.Send(winMessage); err != nil {
