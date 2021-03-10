@@ -6,8 +6,14 @@ type UsersStatistic struct {
 	RunGame     bool
 	FirstMove   bool
 	ChatID      int64
+	Location    *Localization
 	Field       *Field
 	FieldMarkup tgbotapi.InlineKeyboardMarkup
+}
+
+type Localization struct {
+	Language   string
+	Dictionary map[string]string
 }
 
 type Field struct {

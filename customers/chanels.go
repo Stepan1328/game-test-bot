@@ -7,5 +7,4 @@ var (
 	StopChannel     = make(chan tgbotapi.Message)
 	Players         = make(map[int]*UsersStatistic)
 	OccupiedSells   = make([]int, 0)
-	LangMap         = make(map[string]string)
 )
