@@ -10,24 +10,20 @@ import (
 
 func ActionsWithUpdates(updates *tgbotapi.UpdatesChannel, bot *tgbotapi.BotAPI) {
 	for update := range *updates {
-		CheckUpdate(&update, bot)
+		CheckUpdate(bot, &update)
 	}
 }
 
-func CheckUpdate(update *tgbotapi.Update, bot *tgbotapi.BotAPI) {
+func CheckUpdate(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	if update.Message == nil && update.CallbackQuery == nil {
 		return
 	}
 
-	if CheckPlayer(update) {
+	if CheckPlayer(bot, update) {
 		return
 	}
 
 	Message := update.Message
-	if Message == nil {
-		irrelevantField(bot, update.CallbackQuery.Message)
-		return
-	}
 	runGame := cust.Players[Message.From.ID].RunGame
 	fmt.Println(Message.Text)
 
@@ -47,10 +43,10 @@ func CheckUpdate(update *tgbotapi.Update, bot *tgbotapi.BotAPI) {
 	}
 }
 
-func CheckPlayer(update *tgbotapi.Update) bool {
+func CheckPlayer(bot *tgbotapi.BotAPI, update *tgbotapi.Update) bool {
 	if update.Message != nil {
 		if _, inBase := cust.Players[update.Message.From.ID]; !inBase {
-			addToBase(update.Message.From.ID)
+			addToBase(update.Message.From.ID, update.Message.Chat.ID)
 		}
 	}
 
@@ -60,15 +56,16 @@ func CheckPlayer(update *tgbotapi.Update) bool {
 	}
 
 	if update.CallbackQuery != nil {
-		ChangeLanguage(update.CallbackQuery)
+		ChangeLanguage(bot, update.CallbackQuery)
 		return true
 	}
 
 	return false
 }
 
-func addToBase(PlayerID int) {
+func addToBase(PlayerID int, chatID int64) {
 	cust.Players[PlayerID] = &cust.UsersStatistic{
+		ChatID: chatID,
 		Location: &cust.Localization{
 			Language: "en",
 		},
@@ -78,7 +75,7 @@ func addToBase(PlayerID int) {
 		},
 	}
 
-	game_logic.ParseMap(PlayerID)
+	game_logic.ParseLangMap(PlayerID)
 }
 
 func StopGame(bot *tgbotapi.BotAPI, Message *tgbotapi.Message) {
@@ -102,12 +99,14 @@ func SetLanguage(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 
 	msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(row)
 
-	if _, err := bot.Send(msg); err != nil {
+	msgData, err := bot.Send(msg)
+	if err != nil {
 		log.Println(err)
 	}
+	cust.OccupiedSells = append(cust.OccupiedSells, msgData.MessageID)
 }
 
-func ChangeLanguage(updateCallback *tgbotapi.CallbackQuery) {
+func ChangeLanguage(bot *tgbotapi.BotAPI, updateCallback *tgbotapi.CallbackQuery) {
 	playerID := updateCallback.From.ID
 	switch updateCallback.Data {
 	case "ru":
@@ -115,8 +114,21 @@ func ChangeLanguage(updateCallback *tgbotapi.CallbackQuery) {
 	case "en":
 		cust.Players[playerID].Location.Language = "en"
 	default:
+		msg := tgbotapi.NewMessage(cust.Players[playerID].ChatID, cust.Players[playerID].Location.Dictionary["finished_game"])
+
+		if _, err := bot.Send(msg); err != nil {
+			log.Println(err)
+		}
+		return
 	}
-	game_logic.ParseMap(playerID)
+	game_logic.ParseLangMap(playerID)
+	msg := tgbotapi.NewMessage(cust.Players[playerID].ChatID, cust.Players[playerID].Location.Dictionary["lang_set"])
+
+	if _, err := bot.Send(msg); err != nil {
+		log.Println(err)
+	}
+
+	go game_logic.DeleteMessage(bot, cust.Players[playerID].ChatID)
 }
 
 func ChangeSide(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
@@ -139,12 +151,13 @@ func ChangeSide(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 func GameLaunch(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	fmt.Println(update.Message.From.FirstName, update.Message.From.LastName)
 
-	msgID := game_logic.Tttgame(bot, update)
-	cust.Players[update.Message.From.ID].ChatID = update.Message.Chat.ID
-	go game_logic.ListenCallbackQuery(update, bot, msgID)
+	playerID := update.Message.From.ID
+	game_logic.Tttgame(bot, update)
+	cust.Players[playerID].ChatID = update.Message.Chat.ID
+	go game_logic.ListenCallbackQuery(update, bot)
 
-	if _, ok := cust.Players[update.Message.From.ID]; ok {
-		cust.Players[update.Message.From.ID].RunGame = true
+	if _, ok := cust.Players[playerID]; ok {
+		cust.Players[playerID].RunGame = true
 	} else {
 		log.Println("Failed to find user")
 	}
@@ -160,14 +173,6 @@ func StartMsg(bot *tgbotapi.BotAPI, Message *tgbotapi.Message) {
 
 func UnfinishedGameMsg(bot *tgbotapi.BotAPI, Message *tgbotapi.Message) {
 	msg := tgbotapi.NewMessage(Message.Chat.ID, cust.Players[Message.From.ID].Location.Dictionary["unfinished"])
-
-	if _, err := bot.Send(msg); err != nil {
-		log.Println(err)
-	}
-}
-
-func irrelevantField(bot *tgbotapi.BotAPI, Message *tgbotapi.Message) {
-	msg := tgbotapi.NewMessage(Message.Chat.ID, cust.Players[Message.From.ID].Location.Dictionary["irrelevant_field"])
 
 	if _, err := bot.Send(msg); err != nil {
 		log.Println(err)

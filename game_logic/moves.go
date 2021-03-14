@@ -15,22 +15,22 @@ var (
 	zeroButton  = tgbotapi.NewInlineKeyboardButtonData("⭕️", " ")
 )
 
-func Tttgame(bot *tgbotapi.BotAPI, update *tgbotapi.Update) int {
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, cust.Players[update.Message.From.ID].Location.Dictionary["main"])
-
-	msg.ReplyMarkup = parseMarkUp(update.Message.From.ID)
+func Tttgame(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
+	playerID := update.Message.From.ID
+	msg := tgbotapi.NewMessage(cust.Players[playerID].ChatID, cust.Players[playerID].Location.Dictionary["main"])
+	msg.ReplyMarkup = parseMarkUp(playerID)
 
 	msgData, err := bot.Send(msg)
 	if err != nil {
 		log.Println(err)
 	}
 
-	return msgData.MessageID
+	cust.Players[playerID].MsgID = msgData.MessageID
 }
 
-func ListenCallbackQuery(update *tgbotapi.Update, bot *tgbotapi.BotAPI, msgID int) {
+func ListenCallbackQuery(update *tgbotapi.Update, bot *tgbotapi.BotAPI) {
 	if !cust.Players[update.Message.From.ID].FirstMove {
-		botMove(bot, update.Message.From.ID, msgID)
+		botMove(bot, update.Message.From.ID)
 	}
 
 	go func() {
@@ -45,7 +45,12 @@ func ListenCallbackQuery(update *tgbotapi.Update, bot *tgbotapi.BotAPI, msgID in
 func motion(bot *tgbotapi.BotAPI) bool {
 	select {
 	case updateCallback := <-cust.TranslateUpdate:
-		return makeDoubleMove(bot, updateCallback)
+		if cust.Players[updateCallback.From.ID].CheckMsg(updateCallback.Message.MessageID) {
+			return makeDoubleMove(bot, updateCallback)
+		}
+
+		irrelevantField(bot, updateCallback.From.ID)
+		return false
 
 	case Message := <-cust.StopChannel:
 		stopGameMessage := tgbotapi.NewMessage(int64(Message.From.ID), "Game stopped")
@@ -67,13 +72,13 @@ func makeDoubleMove(bot *tgbotapi.BotAPI, updateCallback tgbotapi.CallbackQuery)
 		return false
 	}
 
-	go deleteMessage(bot, chatID)
+	go DeleteMessage(bot, chatID)
 
 	if humanMove(bot, updateCallback) {
 		return true
 	}
 
-	return botMove(bot, updateCallback.From.ID, updateCallback.Message.MessageID)
+	return botMove(bot, updateCallback.From.ID)
 }
 
 func occupiedSell(bot *tgbotapi.BotAPI, chatID int64, playerID int) {
@@ -115,7 +120,7 @@ func humanMove(bot *tgbotapi.BotAPI, updateCallback tgbotapi.CallbackQuery) bool
 	return false
 }
 
-func botMove(bot *tgbotapi.BotAPI, playerID int, msgID int) bool {
+func botMove(bot *tgbotapi.BotAPI, playerID int) bool {
 	move := cust.Players[playerID].Field.Move
 	situation := Situation{PlayField: cust.Players[playerID].Field.PlayingField}
 	motion, _ := situation.Analyze((move+1)%2+1, move)
@@ -124,7 +129,7 @@ func botMove(bot *tgbotapi.BotAPI, playerID int, msgID int) bool {
 
 	buttonMatrix := parseMarkUp(playerID)
 
-	replymsg := tgbotapi.NewEditMessageReplyMarkup(cust.Players[playerID].ChatID, msgID, buttonMatrix)
+	replymsg := tgbotapi.NewEditMessageReplyMarkup(cust.Players[playerID].ChatID, cust.Players[playerID].MsgID, buttonMatrix)
 
 	if _, err := bot.Send(replymsg); err != nil {
 		log.Println(err)
@@ -153,14 +158,14 @@ func checkSituation(bot *tgbotapi.BotAPI, playerID int) bool {
 	return false
 }
 
-func ParseMap(playerID int) {
+func ParseLangMap(playerID int) {
 	lang := cust.Players[playerID].Location.Language
 	bytes, _ := os.ReadFile("./assets/" + lang + ".json")
 
 	_ = json.Unmarshal(bytes, &cust.Players[playerID].Location.Dictionary)
 }
 
-func deleteMessage(bot *tgbotapi.BotAPI, chatID int64) {
+func DeleteMessage(bot *tgbotapi.BotAPI, chatID int64) {
 	for len(cust.OccupiedSells) > 0 {
 		deleteMsg := tgbotapi.NewDeleteMessage(chatID, cust.OccupiedSells[0])
 
@@ -170,6 +175,17 @@ func deleteMessage(bot *tgbotapi.BotAPI, chatID int64) {
 
 		cust.OccupiedSells = cust.OccupiedSells[1:]
 	}
+}
+
+func irrelevantField(bot *tgbotapi.BotAPI, playerID int) {
+	msg := tgbotapi.NewMessage(cust.Players[playerID].ChatID, cust.Players[playerID].Location.Dictionary["irrelevant_field"])
+
+	msgData, err := bot.Send(msg)
+	if err != nil {
+		log.Println(err)
+	}
+
+	cust.OccupiedSells = append(cust.OccupiedSells, msgData.MessageID)
 }
 
 func sendDrawMsg(bot *tgbotapi.BotAPI, playerID int) {
