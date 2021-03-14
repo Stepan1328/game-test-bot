@@ -6,6 +6,7 @@ type UsersStatistic struct {
 	RunGame     bool
 	FirstMove   bool
 	ChatID      int64
+	MsgID       int
 	Location    *Localization
 	Field       *Field
 	FieldMarkup tgbotapi.InlineKeyboardMarkup
@@ -19,6 +20,14 @@ type Localization struct {
 type Field struct {
 	PlayingField [3][3]int
 	Move         int
+}
+
+func (u *UsersStatistic) CheckMsg(MsgID int) bool {
+	if u.MsgID == MsgID {
+		return true
+	}
+
+	return false
 }
 
 func (u *UsersStatistic) ClearField() {
