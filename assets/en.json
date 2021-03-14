@@ -8,5 +8,7 @@
   "win_zero": "Congratulations to \uD83D\uDD25⭕\uD83D\uDD25 he is the winner \uD83C\uDF89\nPlayer 1 don't be upset and ask for a rematch by writing /tttgame",
   "unfinished": "Please finish playing the game or finish it by writing \n/stopgame",
   "norungame": "No game running\nTry to write /tttgame to play tic tac toe",
-  "change_lang": "Please select a language"
+  "change_lang": "Please select a language",
+  "lang_set": "The language was set",
+  "finished_game": "This game is already finished"
 }
