@@ -35,3 +35,25 @@ func (u *UsersStatistic) ClearField() {
 	u.Field.PlayingField = [3][3]int{}
 	u.Field.Move = 1
 }
+
+type BattleStatistic struct {
+	RunGame     bool
+	FirstMove   bool
+	Player1     *Player
+	Player2     *Player
+	Field       *Field
+	FieldMarkup tgbotapi.InlineKeyboardMarkup
+}
+
+type Player struct {
+	ChatID   int64
+	MsgID    int
+	Queue    bool
+	Location *Localization
+}
+
+func (u *BattleStatistic) ClearBattle() {
+	u.RunGame = false
+	u.Field.PlayingField = [3][3]int{}
+	u.Field.Move = 1
+}
