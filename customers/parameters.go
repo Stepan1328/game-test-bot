@@ -3,13 +3,14 @@ package customers
 import tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 
 type UsersStatistic struct {
-	RunGame     bool
-	FirstMove   bool
-	ChatID      int64
-	MsgID       int
-	Location    *Localization
-	Field       *Field
-	FieldMarkup tgbotapi.InlineKeyboardMarkup
+	RunGame       bool
+	FirstMove     bool
+	ChatID        int64
+	MsgID         int
+	Location      *Localization
+	Field         *Field
+	FieldMarkup   tgbotapi.InlineKeyboardMarkup
+	OccupiedSells []int
 }
 
 type Localization struct {
@@ -46,6 +47,7 @@ type BattleStatistic struct {
 }
 
 type Player struct {
+	UserName string
 	ChatID   int64
 	MsgID    int
 	Queue    bool
