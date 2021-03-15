@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	cust "github.com/Stepan1328/game-test-bot/customers"
+	"github.com/Stepan1328/game-test-bot/database"
 	"github.com/Stepan1328/game-test-bot/game_logic"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
@@ -34,7 +35,7 @@ func CheckUpdate(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 
 	if Message.Command() == "stopgame" {
 		fmt.Println("stopgame")
-		StopGame(bot, Message)
+		StopGame(bot, update)
 		return
 	}
 
@@ -63,6 +64,7 @@ func CheckPlayer(bot *tgbotapi.BotAPI, update *tgbotapi.Update) bool {
 	}
 
 	if update.CallbackQuery != nil && cust.Players[update.CallbackQuery.From.UserName].RunGame {
+		go game_logic.ListenCallbackQuery(bot, update)
 		cust.TranslateUpdate <- *update.CallbackQuery
 		return true
 	}
@@ -96,6 +98,7 @@ func addToBase(PlayerID string, chatID int64) {
 		},
 	}
 
+	database.SaveBase()
 	game_logic.ParseLangMap(PlayerID)
 }
 
@@ -107,11 +110,12 @@ func NoneUserNamePlayer(bot *tgbotapi.BotAPI, chatID int64) {
 	}
 }
 
-func StopGame(bot *tgbotapi.BotAPI, Message *tgbotapi.Message) {
-	if cust.Players[Message.From.UserName].RunGame {
-		cust.StopChannel <- *Message
+func StopGame(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
+	if cust.Players[update.Message.From.UserName].RunGame {
+		go game_logic.ListenCallbackQuery(bot, update)
+		cust.StopChannel <- *update.Message
 	} else {
-		msg := tgbotapi.NewMessage(Message.Chat.ID, cust.Players[Message.From.UserName].Location.Dictionary["norungame"])
+		msg := tgbotapi.NewMessage(cust.Players[update.Message.From.UserName].ChatID, cust.Players[update.Message.From.UserName].Location.Dictionary["norungame"])
 
 		if _, err := bot.Send(msg); err != nil {
 			log.Println(err)
@@ -157,6 +161,7 @@ func ChangeLanguage(bot *tgbotapi.BotAPI, updateCallback *tgbotapi.CallbackQuery
 		log.Println(err)
 	}
 
+	database.SaveBase()
 	go game_logic.DeleteMessage(bot, playerID, cust.Players[playerID].ChatID)
 }
 
@@ -175,6 +180,7 @@ func ChangeSide(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	if _, err := bot.Send(msg); err != nil {
 		log.Println(err)
 	}
+	database.SaveBase()
 }
 
 func GameLaunch(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
@@ -183,13 +189,15 @@ func GameLaunch(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	playerID := update.Message.From.UserName
 	game_logic.Tttgame(bot, update)
 	cust.Players[playerID].ChatID = update.Message.Chat.ID
-	go game_logic.ListenCallbackQuery(update, bot)
+	database.SaveBase()
+	go game_logic.ListenCallbackQuery(bot, update)
 
 	if _, ok := cust.Players[playerID]; ok {
 		cust.Players[playerID].RunGame = true
 	} else {
 		log.Println("Failed to find user")
 	}
+	database.SaveBase()
 }
 
 func BattleLaunch(update *tgbotapi.Update) {

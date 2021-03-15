@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Stepan1328/game-test-bot/database"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
 	"os"
@@ -8,6 +9,7 @@ import (
 
 func main() {
 	bot, updates := startBot()
+	database.UploadDatabase()
 
 	ActionsWithUpdates(&updates, bot)
 }

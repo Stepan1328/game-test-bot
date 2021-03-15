@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	cust "github.com/Stepan1328/game-test-bot/customers"
+	"github.com/Stepan1328/game-test-bot/database"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
 	"os"
@@ -26,11 +27,20 @@ func Tttgame(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 	}
 
 	cust.Players[playerID].MsgID = msgData.MessageID
+	database.SaveBase()
 }
 
-func ListenCallbackQuery(update *tgbotapi.Update, bot *tgbotapi.BotAPI) {
-	if !cust.Players[update.Message.From.UserName].FirstMove {
-		botMove(bot, update.Message.From.UserName)
+func ListenCallbackQuery(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
+	if update.Message != nil {
+		if !cust.Players[update.Message.From.UserName].FirstMove && cust.Players[update.Message.From.UserName].Field.Move == 1 {
+			botMove(bot, update.Message.From.UserName)
+			database.SaveBase()
+		}
+	} else {
+		if !cust.Players[update.CallbackQuery.From.UserName].FirstMove && cust.Players[update.CallbackQuery.From.UserName].Field.Move == 1 {
+			botMove(bot, update.CallbackQuery.From.UserName)
+			database.SaveBase()
+		}
 	}
 
 	go func() {
@@ -53,14 +63,14 @@ func motion(bot *tgbotapi.BotAPI) bool {
 		return false
 
 	case Message := <-cust.StopChannel:
-		stopGameMessage := tgbotapi.NewMessage(int64(Message.From.ID), "Game stopped")
+		stopGameMessage := tgbotapi.NewMessage(cust.Players[Message.From.UserName].ChatID, "Game stopped")
 
 		if _, err := bot.Send(stopGameMessage); err != nil {
 			log.Println(err)
 		}
 
 		cust.Players[Message.From.UserName].ClearField()
-
+		database.SaveBase()
 		return true
 	}
 }
@@ -69,6 +79,7 @@ func makeDoubleMove(bot *tgbotapi.BotAPI, updateCallback tgbotapi.CallbackQuery)
 	chatID := updateCallback.Message.Chat.ID
 	if updateCallback.Data == " " {
 		occupiedSell(bot, chatID, updateCallback.From.UserName)
+		database.SaveBase()
 		return false
 	}
 
@@ -90,6 +101,7 @@ func occupiedSell(bot *tgbotapi.BotAPI, chatID int64, playerID string) {
 	}
 
 	cust.Players[playerID].OccupiedSells = append(cust.Players[playerID].OccupiedSells, msgData.MessageID)
+	database.SaveBase()
 }
 
 func humanMove(bot *tgbotapi.BotAPI, updateCallback tgbotapi.CallbackQuery) bool {
@@ -114,9 +126,11 @@ func humanMove(bot *tgbotapi.BotAPI, updateCallback tgbotapi.CallbackQuery) bool
 	}
 
 	if checkSituation(bot, playerID) {
+		database.SaveBase()
 		return true
 	}
 
+	database.SaveBase()
 	return false
 }
 
@@ -136,9 +150,11 @@ func botMove(bot *tgbotapi.BotAPI, playerID string) bool {
 	}
 
 	if checkSituation(bot, playerID) {
+		database.SaveBase()
 		return true
 	}
 
+	database.SaveBase()
 	return false
 }
 
@@ -147,6 +163,7 @@ func checkSituation(bot *tgbotapi.BotAPI, playerID string) bool {
 
 	if sendWinMsg(bot, playerID) {
 		cust.Players[playerID].ClearField()
+		database.SaveBase()
 		return true
 	}
 
@@ -175,6 +192,7 @@ func DeleteMessage(bot *tgbotapi.BotAPI, playerID string, chatID int64) {
 
 		cust.Players[playerID].OccupiedSells = cust.Players[playerID].OccupiedSells[1:]
 	}
+	database.SaveBase()
 }
 
 func irrelevantField(bot *tgbotapi.BotAPI, playerID string) {
@@ -186,6 +204,7 @@ func irrelevantField(bot *tgbotapi.BotAPI, playerID string) {
 	}
 
 	cust.Players[playerID].OccupiedSells = append(cust.Players[playerID].OccupiedSells, msgData.MessageID)
+	database.SaveBase()
 }
 
 func sendDrawMsg(bot *tgbotapi.BotAPI, playerID string) {
@@ -196,6 +215,7 @@ func sendDrawMsg(bot *tgbotapi.BotAPI, playerID string) {
 	}
 
 	cust.Players[playerID].ClearField()
+	database.SaveBase()
 }
 
 func sendWinMsg(bot *tgbotapi.BotAPI, playerID string) bool {
