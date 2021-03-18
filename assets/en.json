@@ -12,5 +12,7 @@
   "norungame": "No game running\nTry to write /tttgame to play tic tac toe",
   "change_lang": "Please select a language",
   "lang_set": "The language was set",
-  "finished_game": "This game is already finished"
+  "finished_game": "This game is already finished",
+  "invalid_opponent": "The opponent's nickname was entered incorrectly\nCheck that the data is correct and try again",
+  "battle_start": "some text"
 }

@@ -1,13 +1,9 @@
 package game_logic
 
 import (
-	"encoding/json"
-	"fmt"
 	cust "github.com/Stepan1328/game-test-bot/customers"
-	"github.com/Stepan1328/game-test-bot/database"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
-	"os"
 	"strconv"
 )
 
@@ -16,234 +12,121 @@ var (
 	zeroButton  = tgbotapi.NewInlineKeyboardButtonData("⭕️", " ")
 )
 
-func Tttgame(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
+func Tttgame(update *tgbotapi.Update) {
 	playerID := update.Message.From.UserName
 	msg := tgbotapi.NewMessage(cust.Players[playerID].ChatID, cust.Players[playerID].Location.Dictionary["main"])
-	msg.ReplyMarkup = parseMarkUp(playerID)
+	msg.ReplyMarkup = ParseMarkUp(playerID)
 
-	msgData, err := bot.Send(msg)
+	msgData, err := cust.Bot.Send(msg)
 	if err != nil {
 		log.Println(err)
 	}
 
 	cust.Players[playerID].MsgID = msgData.MessageID
-	database.SaveBase()
+	cust.SaveBase()
 }
 
-func ListenCallbackQuery(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
+func ListenCallbackQuery(update *tgbotapi.Update) {
 	if update.Message != nil {
 		if !cust.Players[update.Message.From.UserName].FirstMove && cust.Players[update.Message.From.UserName].Field.Move == 1 {
-			botMove(bot, update.Message.From.UserName)
-			database.SaveBase()
+			cust.Players[update.Message.From.UserName].BotMove()
 		}
 	} else {
 		if !cust.Players[update.CallbackQuery.From.UserName].FirstMove && cust.Players[update.CallbackQuery.From.UserName].Field.Move == 1 {
-			botMove(bot, update.CallbackQuery.From.UserName)
-			database.SaveBase()
+			cust.Players[update.CallbackQuery.From.UserName].BotMove()
 		}
 	}
 
 	go func() {
 		for {
-			if motion(bot) {
+			if motion() {
 				return
 			}
 		}
 	}()
 }
 
-func motion(bot *tgbotapi.BotAPI) bool {
+func motion() bool {
 	select {
 	case updateCallback := <-cust.TranslateUpdate:
+		cust.Players[updateCallback.From.UserName].Field.Mutex = false
 		if cust.Players[updateCallback.From.UserName].CheckMsg(updateCallback.Message.MessageID) {
-			return makeDoubleMove(bot, updateCallback)
+			return makeDoubleMove(updateCallback)
 		}
 
-		irrelevantField(bot, updateCallback.From.UserName)
+		irrelevantField(updateCallback.From.UserName)
 		return false
 
 	case Message := <-cust.StopChannel:
 		stopGameMessage := tgbotapi.NewMessage(cust.Players[Message.From.UserName].ChatID, "Game stopped")
 
-		if _, err := bot.Send(stopGameMessage); err != nil {
+		if _, err := cust.Bot.Send(stopGameMessage); err != nil {
 			log.Println(err)
 		}
 
 		cust.Players[Message.From.UserName].ClearField()
-		database.SaveBase()
+		cust.SaveBase()
 		return true
 	}
 }
 
-func makeDoubleMove(bot *tgbotapi.BotAPI, updateCallback tgbotapi.CallbackQuery) bool {
+func makeDoubleMove(updateCallback tgbotapi.CallbackQuery) bool {
 	chatID := updateCallback.Message.Chat.ID
+	playerID := updateCallback.From.UserName
 	if updateCallback.Data == " " {
-		occupiedSell(bot, chatID, updateCallback.From.UserName)
-		database.SaveBase()
+		occupiedSell(updateCallback.From.UserName, chatID)
+		cust.SaveBase()
 		return false
 	}
 
-	go DeleteMessage(bot, updateCallback.From.UserName, chatID)
+	go DeleteMessage(playerID, chatID)
 
-	if humanMove(bot, updateCallback) {
+	if cust.Players[playerID].HumanMove(updateCallback.Data) {
+		cust.Players[playerID].Field.Mutex = true
 		return true
 	}
 
-	return botMove(bot, updateCallback.From.UserName)
+	return cust.Players[playerID].BotMove()
 }
 
-func occupiedSell(bot *tgbotapi.BotAPI, chatID int64, playerID string) {
+func occupiedSell(playerID string, chatID int64) {
 	replymsg := tgbotapi.NewMessage(chatID, cust.Players[playerID].Location.Dictionary["occupied_cell"])
 
-	msgData, err := bot.Send(replymsg)
+	msgData, err := cust.Bot.Send(replymsg)
 	if err != nil {
 		log.Println(err)
 	}
 
 	cust.Players[playerID].OccupiedSells = append(cust.Players[playerID].OccupiedSells, msgData.MessageID)
-	database.SaveBase()
+	cust.SaveBase()
 }
 
-func humanMove(bot *tgbotapi.BotAPI, updateCallback tgbotapi.CallbackQuery) bool {
-	playerID := updateCallback.From.UserName
-	move := cust.Players[playerID].Field.Move
-	chatID := cust.Players[playerID].ChatID
-	numberOfCell, err := strconv.Atoi(updateCallback.Data)
-	if err != nil {
-		log.Println(err)
-	}
-
-	column := (numberOfCell - 1) % 3
-	row := (numberOfCell - 1) / 3
-	cust.Players[playerID].Field.PlayingField[row][column] = (move+1)%2 + 1
-	cust.Players[playerID].Field.Move += 1
-	buttonMatrix := parseMarkUp(playerID)
-
-	replymsg := tgbotapi.NewEditMessageReplyMarkup(chatID, updateCallback.Message.MessageID, buttonMatrix)
-
-	if _, err = bot.Send(replymsg); err != nil {
-		log.Println(err)
-	}
-
-	if checkSituation(bot, playerID) {
-		database.SaveBase()
-		return true
-	}
-
-	database.SaveBase()
-	return false
-}
-
-func botMove(bot *tgbotapi.BotAPI, playerID string) bool {
-	move := cust.Players[playerID].Field.Move
-	situation := Situation{PlayField: cust.Players[playerID].Field.PlayingField}
-	motion, _ := situation.Analyze((move+1)%2+1, move)
-	cust.Players[playerID].Field.PlayingField[motion.Y][motion.X] = (move+1)%2 + 1
-	cust.Players[playerID].Field.Move += 1
-
-	buttonMatrix := parseMarkUp(playerID)
-
-	replymsg := tgbotapi.NewEditMessageReplyMarkup(cust.Players[playerID].ChatID, cust.Players[playerID].MsgID, buttonMatrix)
-
-	if _, err := bot.Send(replymsg); err != nil {
-		log.Println(err)
-	}
-
-	if checkSituation(bot, playerID) {
-		database.SaveBase()
-		return true
-	}
-
-	database.SaveBase()
-	return false
-}
-
-func checkSituation(bot *tgbotapi.BotAPI, playerID string) bool {
-	move := cust.Players[playerID].Field.Move
-
-	if sendWinMsg(bot, playerID) {
-		cust.Players[playerID].ClearField()
-		database.SaveBase()
-		return true
-	}
-
-	if move > 9 {
-		go sendDrawMsg(bot, playerID)
-		return true
-	}
-
-	return false
-}
-
-func ParseLangMap(playerID string) {
-	lang := cust.Players[playerID].Location.Language
-	bytes, _ := os.ReadFile("./assets/" + lang + ".json")
-
-	_ = json.Unmarshal(bytes, &cust.Players[playerID].Location.Dictionary)
-}
-
-func DeleteMessage(bot *tgbotapi.BotAPI, playerID string, chatID int64) {
+func DeleteMessage(playerID string, chatID int64) {
 	for len(cust.Players[playerID].OccupiedSells) > 0 {
 		deleteMsg := tgbotapi.NewDeleteMessage(chatID, cust.Players[playerID].OccupiedSells[0])
 
-		if _, err := bot.Send(deleteMsg); err != nil {
+		if _, err := cust.Bot.Send(deleteMsg); err != nil {
 			log.Println(err)
 		}
 
 		cust.Players[playerID].OccupiedSells = cust.Players[playerID].OccupiedSells[1:]
 	}
-	database.SaveBase()
+	cust.SaveBase()
 }
 
-func irrelevantField(bot *tgbotapi.BotAPI, playerID string) {
+func irrelevantField(playerID string) {
 	msg := tgbotapi.NewMessage(cust.Players[playerID].ChatID, cust.Players[playerID].Location.Dictionary["irrelevant_field"])
 
-	msgData, err := bot.Send(msg)
+	msgData, err := cust.Bot.Send(msg)
 	if err != nil {
 		log.Println(err)
 	}
 
 	cust.Players[playerID].OccupiedSells = append(cust.Players[playerID].OccupiedSells, msgData.MessageID)
-	database.SaveBase()
+	cust.SaveBase()
 }
 
-func sendDrawMsg(bot *tgbotapi.BotAPI, playerID string) {
-	drawMessage := tgbotapi.NewMessage(cust.Players[playerID].ChatID, cust.Players[playerID].Location.Dictionary["draw"])
-
-	if _, err := bot.Send(drawMessage); err != nil {
-		log.Println(err)
-	}
-
-	cust.Players[playerID].ClearField()
-	database.SaveBase()
-}
-
-func sendWinMsg(bot *tgbotapi.BotAPI, playerID string) bool {
-	move := cust.Players[playerID].Field.Move
-	win, _ := CheckingWinner(cust.Players[playerID].Field.PlayingField, move-1)
-
-	if !win {
-		return win
-	}
-
-	winMessage := tgbotapi.NewMessage(cust.Players[playerID].ChatID, "")
-
-	if move%2 == 0 {
-		winMessage.Text = cust.Players[playerID].Location.Dictionary["win_cross"]
-	} else {
-		winMessage.Text = cust.Players[playerID].Location.Dictionary["win_zero"]
-	}
-
-	if _, err := bot.Send(winMessage); err != nil {
-		log.Println(err)
-	}
-
-	fmt.Println("found the winner")
-
-	return win
-}
-
-func parseMarkUp(playerID string) tgbotapi.InlineKeyboardMarkup {
+func ParseMarkUp(playerID string) tgbotapi.InlineKeyboardMarkup {
 	var masOfButton [9]tgbotapi.InlineKeyboardButton
 	var masOfRow [3][]tgbotapi.InlineKeyboardButton
 

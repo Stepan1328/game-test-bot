@@ -1,17 +1,18 @@
 package main
 
 import (
-	"github.com/Stepan1328/game-test-bot/database"
+	"github.com/Stepan1328/game-test-bot/customers"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
 	"os"
 )
 
 func main() {
-	bot, updates := startBot()
-	database.UploadDatabase()
+	var updates tgbotapi.UpdatesChannel
+	cust.UploadDatabase()
+	cust.Bot, updates = startBot()
 
-	ActionsWithUpdates(&updates, bot)
+	ActionsWithUpdates(&updates)
 }
 
 func startBot() (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {

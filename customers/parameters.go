@@ -1,8 +1,11 @@
-package customers
+package cust
 
-import tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+import (
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+)
 
 type UsersStatistic struct {
+	PlayerID      int //TODO: mute battle invite
 	RunGame       bool
 	FirstMove     bool
 	ChatID        int64
@@ -19,26 +22,26 @@ type Localization struct {
 }
 
 type Field struct {
+	Mutex        bool
 	PlayingField [3][3]int
 	Move         int
 }
 
-func (u *UsersStatistic) CheckMsg(MsgID int) bool {
-	if u.MsgID == MsgID {
+func (user *UsersStatistic) CheckMsg(MsgID int) bool {
+	if user.MsgID == MsgID {
 		return true
 	}
 
 	return false
 }
 
-func (u *UsersStatistic) ClearField() {
-	u.RunGame = false
-	u.Field.PlayingField = [3][3]int{}
-	u.Field.Move = 1
+func (user *UsersStatistic) ClearField() {
+	user.RunGame = false
+	user.Field.PlayingField = [3][3]int{}
+	user.Field.Move = 1
 }
 
 type BattleStatistic struct {
-	RunGame     bool
 	FirstMove   bool
 	Player1     *Player
 	Player2     *Player
@@ -48,14 +51,12 @@ type BattleStatistic struct {
 
 type Player struct {
 	UserName string
-	ChatID   int64
 	MsgID    int
 	Queue    bool
-	Location *Localization
+	Score    int
 }
 
-func (u *BattleStatistic) ClearBattle() {
-	u.RunGame = false
-	u.Field.PlayingField = [3][3]int{}
-	u.Field.Move = 1
+func (user *BattleStatistic) ClearBattle() {
+	user.Field.PlayingField = [3][3]int{}
+	user.Field.Move = 1
 }

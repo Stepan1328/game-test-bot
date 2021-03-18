@@ -1,4 +1,5 @@
 .idea
 game-test-bot
 botToken.txt
-database/playerBase.json
+database/playersBase.json
+database/battlesBase.json

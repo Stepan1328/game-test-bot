@@ -20,9 +20,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="591fb071-010b-4212-9459-7d7752f32332" name="Default Changelist" comment="&quot;Fixed parallel game launch errors&quot;">
+      <change afterPath="$PROJECT_DIR$/database/battlesBase.json" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/game_logic/battle.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/en.json" beforeDir="false" afterPath="$PROJECT_DIR$/assets/en.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/ru.json" beforeDir="false" afterPath="$PROJECT_DIR$/assets/ru.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot_launch.go" beforeDir="false" afterPath="$PROJECT_DIR$/bot_launch.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/customers/chanels.go" beforeDir="false" afterPath="$PROJECT_DIR$/customers/chanels.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/customers/parameters.go" beforeDir="false" afterPath="$PROJECT_DIR$/customers/parameters.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game_logic/action.go" beforeDir="false" afterPath="$PROJECT_DIR$/customers/action.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game_logic/checkWinner.go" beforeDir="false" afterPath="$PROJECT_DIR$/customers/checkWinner.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game_logic/moves.go" beforeDir="false" afterPath="$PROJECT_DIR$/game_logic/moves.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
     </list>
@@ -38,7 +46,7 @@
       </list>
     </option>
   </component>
-  <component name="GOROOT" url="file:///usr/local/Cellar/go/1.16/libexec" />
+  <component name="GOROOT" url="file:///usr/local/Cellar/go/1.16.2/libexec" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -82,14 +90,23 @@
       <recent name="$PROJECT_DIR$" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$" />
-      <recent name="$PROJECT_DIR$/start_bot" />
       <recent name="$PROJECT_DIR$/customers" />
       <recent name="$PROJECT_DIR$/game_logic" />
-      <recent name="$PROJECT_DIR$/syntheticIntellect" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/assets" />
+      <recent name="$PROJECT_DIR$/start_bot" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Build.go build github.com/Stepan1328/game-test-bot (1)">
+  <component name="RunManager" selected="Go Build.go build">
+    <configuration name="go build bot_launch.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="GameTestBot" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <filePath value="$PROJECT_DIR$/bot_launch.go" />
+      <package value="github.com/Stepan1328/game-test-bot" />
+      <directory value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
     <configuration name="go build github.com/Stepan1328/game-test-bot (1)" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="GameTestBot" />
       <working_directory value="$PROJECT_DIR$" />
@@ -125,15 +142,6 @@
       <directory value="$PROJECT_DIR$" />
       <method v="2" />
     </configuration>
-    <configuration name="go build test.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="GameTestbot" />
-      <working_directory value="$PROJECT_DIR$" />
-      <kind value="FILE" />
-      <filePath value="$PROJECT_DIR$/test.go" />
-      <package value="github.com/Stepan1328/game-test-bot" />
-      <directory value="$PROJECT_DIR$" />
-      <method v="2" />
-    </configuration>
     <configuration name="go build" type="GoApplicationRunConfiguration" factoryName="Go Application">
       <module name="GameTestBot" />
       <working_directory value="$PROJECT_DIR$" />
@@ -147,16 +155,16 @@
       <item itemvalue="Go Build.go build github.com/Stepan1328/game-test-bot" />
       <item itemvalue="Go Build.go build github.com/Stepan1328/game-test-bot/syntheticIntellect" />
       <item itemvalue="Go Build.go build syntheticIntellect.go" />
-      <item itemvalue="Go Build.go build test.go" />
       <item itemvalue="Go Build.go build github.com/Stepan1328/game-test-bot (1)" />
+      <item itemvalue="Go Build.go build bot_launch.go" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Build.go build bot_launch.go" />
         <item itemvalue="Go Build.go build github.com/Stepan1328/game-test-bot (1)" />
         <item itemvalue="Go Build.go build github.com/Stepan1328/game-test-bot/syntheticIntellect" />
         <item itemvalue="Go Build.go build syntheticIntellect.go" />
         <item itemvalue="Go Build.go build github.com/Stepan1328/game-test-bot" />
-        <item itemvalue="Go Build.go build test.go" />
       </list>
     </recent_temporary>
   </component>
@@ -195,7 +203,8 @@
     <MESSAGE value="&quot;added new message&quot;" />
     <MESSAGE value="&quot;add folder&quot;" />
     <MESSAGE value="&quot;add database&quot;" />
-    <option name="LAST_COMMIT_MESSAGE" value="&quot;add database&quot;" />
+    <MESSAGE value="&quot;added saving of all parameters of all players&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="&quot;added saving of all parameters of all players&quot;" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
