@@ -14,5 +14,6 @@
   "lang_set": "The language was set",
   "finished_game": "This game is already finished",
   "invalid_opponent": "The opponent's nickname was entered incorrectly\nCheck that the data is correct and try again",
-  "battle_start": "some text"
+  "battle_start": "some text",
+  "reversible_req": "You can't start a battle with yourself"
 }

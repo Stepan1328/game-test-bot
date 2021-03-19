@@ -54,7 +54,7 @@ func motion() bool {
 			return makeDoubleMove(updateCallback)
 		}
 
-		irrelevantField(updateCallback.From.UserName)
+		TemporaryMessage(updateCallback.From.UserName, "irrelevant_field")
 		return false
 
 	case Message := <-cust.StopChannel:
@@ -71,15 +71,15 @@ func motion() bool {
 }
 
 func makeDoubleMove(updateCallback tgbotapi.CallbackQuery) bool {
-	chatID := updateCallback.Message.Chat.ID
+	//chatID := updateCallback.Message.Chat.ID
 	playerID := updateCallback.From.UserName
 	if updateCallback.Data == " " {
-		occupiedSell(updateCallback.From.UserName, chatID)
+		TemporaryMessage(playerID, "occupied_cell")
 		cust.SaveBase()
 		return false
 	}
 
-	go DeleteMessage(playerID, chatID)
+	go DeleteMessage(playerID)
 
 	if cust.Players[playerID].HumanMove(updateCallback.Data) {
 		cust.Players[playerID].Field.Mutex = true
@@ -89,21 +89,9 @@ func makeDoubleMove(updateCallback tgbotapi.CallbackQuery) bool {
 	return cust.Players[playerID].BotMove()
 }
 
-func occupiedSell(playerID string, chatID int64) {
-	replymsg := tgbotapi.NewMessage(chatID, cust.Players[playerID].Location.Dictionary["occupied_cell"])
-
-	msgData, err := cust.Bot.Send(replymsg)
-	if err != nil {
-		log.Println(err)
-	}
-
-	cust.Players[playerID].OccupiedSells = append(cust.Players[playerID].OccupiedSells, msgData.MessageID)
-	cust.SaveBase()
-}
-
-func DeleteMessage(playerID string, chatID int64) {
+func DeleteMessage(playerID string) {
 	for len(cust.Players[playerID].OccupiedSells) > 0 {
-		deleteMsg := tgbotapi.NewDeleteMessage(chatID, cust.Players[playerID].OccupiedSells[0])
+		deleteMsg := tgbotapi.NewDeleteMessage(cust.Players[playerID].ChatID, cust.Players[playerID].OccupiedSells[0])
 
 		if _, err := cust.Bot.Send(deleteMsg); err != nil {
 			log.Println(err)
@@ -114,16 +102,24 @@ func DeleteMessage(playerID string, chatID int64) {
 	cust.SaveBase()
 }
 
-func irrelevantField(playerID string) {
-	msg := tgbotapi.NewMessage(cust.Players[playerID].ChatID, cust.Players[playerID].Location.Dictionary["irrelevant_field"])
+func TemporaryMessage(playerID, text string) {
+	replymsg := tgbotapi.NewMessage(cust.Players[playerID].ChatID, cust.Players[playerID].Location.Dictionary[text])
 
-	msgData, err := cust.Bot.Send(msg)
+	msgData, err := cust.Bot.Send(replymsg)
 	if err != nil {
 		log.Println(err)
 	}
 
 	cust.Players[playerID].OccupiedSells = append(cust.Players[playerID].OccupiedSells, msgData.MessageID)
 	cust.SaveBase()
+}
+
+func SimpleMsg(playerID, text string) {
+	msg := tgbotapi.NewMessage(cust.Players[playerID].ChatID, cust.Players[playerID].Location.Dictionary[text])
+
+	if _, err := cust.Bot.Send(msg); err != nil {
+		log.Println(err)
+	}
 }
 
 func ParseMarkUp(playerID string) tgbotapi.InlineKeyboardMarkup {
