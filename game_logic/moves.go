@@ -1,149 +1,109 @@
 package game_logic
 
 import (
-	cust "github.com/Stepan1328/game-test-bot/customers"
+	"github.com/Stepan1328/game-test-bot/clients"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
-	"strconv"
-)
-
-var (
-	crossButton = tgbotapi.NewInlineKeyboardButtonData("❌", " ")
-	zeroButton  = tgbotapi.NewInlineKeyboardButtonData("⭕️", " ")
 )
 
 func Tttgame(update *tgbotapi.Update) {
-	playerID := update.Message.From.UserName
-	msg := tgbotapi.NewMessage(cust.Players[playerID].ChatID, cust.Players[playerID].Location.Dictionary["main"])
-	msg.ReplyMarkup = ParseMarkUp(playerID)
+	playerID := update.Message.From.ID
+	msg := tgbotapi.NewMessage(clients.Players[playerID].ChatID, clients.Players[playerID].Location.Dictionary["main"])
+	msg.ReplyMarkup = clients.Players[playerID].FieldMarkup
 
-	msgData, err := cust.Bot.Send(msg)
+	msgData, err := clients.Bot.Send(msg)
 	if err != nil {
 		log.Println(err)
 	}
 
-	cust.Players[playerID].MsgID = msgData.MessageID
-	cust.SaveBase()
+	clients.Players[playerID].MsgID = msgData.MessageID
+	clients.SaveBase()
 }
 
-func ListenCallbackQuery(update *tgbotapi.Update) {
+func FirstMove(update *tgbotapi.Update) {
+	var playerId int
 	if update.Message != nil {
-		if !cust.Players[update.Message.From.UserName].FirstMove && cust.Players[update.Message.From.UserName].Field.Move == 1 {
-			cust.Players[update.Message.From.UserName].BotMove()
+		playerId = update.Message.From.ID
+		if !clients.Players[playerId].FirstMove && clients.Players[playerId].Field.Move == 1 {
+			clients.Players[playerId].BotMove()
 		}
 	} else {
-		if !cust.Players[update.CallbackQuery.From.UserName].FirstMove && cust.Players[update.CallbackQuery.From.UserName].Field.Move == 1 {
-			cust.Players[update.CallbackQuery.From.UserName].BotMove()
+		playerId = update.CallbackQuery.From.ID
+		if !clients.Players[playerId].FirstMove && clients.Players[playerId].Field.Move == 1 {
+			clients.Players[playerId].BotMove()
 		}
 	}
-
-	go func() {
-		for {
-			if motion() {
-				return
-			}
-		}
-	}()
 }
 
-func motion() bool {
+func Motion() {
 	select {
-	case updateCallback := <-cust.TranslateUpdate:
-		cust.Players[updateCallback.From.UserName].Field.Mutex = false
-		if cust.Players[updateCallback.From.UserName].CheckMsg(updateCallback.Message.MessageID) {
-			return makeDoubleMove(updateCallback)
+	case updateCallback := <-clients.TranslateUpdate:
+		if clients.Players[updateCallback.From.ID].CheckMsg(updateCallback.Message.MessageID) {
+			makeDoubleMove(updateCallback)
+			return
 		}
 
-		TemporaryMessage(updateCallback.From.UserName, "irrelevant_field")
-		return false
+		TemporaryMessage(updateCallback.From.ID, "irrelevant_field")
+	case Message := <-clients.StopChannel:
+		stopGameMessage := tgbotapi.NewMessage(clients.Players[Message.From.ID].ChatID, "Game stopped")
 
-	case Message := <-cust.StopChannel:
-		stopGameMessage := tgbotapi.NewMessage(cust.Players[Message.From.UserName].ChatID, "Game stopped")
-
-		if _, err := cust.Bot.Send(stopGameMessage); err != nil {
+		if _, err := clients.Bot.Send(stopGameMessage); err != nil {
 			log.Println(err)
 		}
 
-		cust.Players[Message.From.UserName].ClearField()
-		cust.SaveBase()
-		return true
+		clients.Players[Message.From.ID].ClearField()
+		clients.SaveBase()
+
+		clients.CheckInvitationStack(Message.From.ID)
 	}
 }
 
 func makeDoubleMove(updateCallback tgbotapi.CallbackQuery) bool {
-	//chatID := updateCallback.Message.Chat.ID
-	playerID := updateCallback.From.UserName
+	playerID := updateCallback.From.ID
 	if updateCallback.Data == " " {
 		TemporaryMessage(playerID, "occupied_cell")
-		cust.SaveBase()
+		clients.SaveBase()
 		return false
 	}
 
-	go DeleteMessage(playerID)
+	DeleteMessage(playerID)
 
-	if cust.Players[playerID].HumanMove(updateCallback.Data) {
-		cust.Players[playerID].Field.Mutex = true
+	if clients.Players[playerID].HumanMove(updateCallback.Data) {
 		return true
 	}
 
-	return cust.Players[playerID].BotMove()
+	return clients.Players[playerID].BotMove()
 }
 
-func DeleteMessage(playerID string) {
-	for len(cust.Players[playerID].OccupiedSells) > 0 {
-		deleteMsg := tgbotapi.NewDeleteMessage(cust.Players[playerID].ChatID, cust.Players[playerID].OccupiedSells[0])
+func DeleteMessage(playerID int) {
+	for len(clients.Players[playerID].OccupiedSells) > 0 {
+		deleteMsg := tgbotapi.NewDeleteMessage(clients.Players[playerID].ChatID, clients.Players[playerID].OccupiedSells[0])
 
-		if _, err := cust.Bot.Send(deleteMsg); err != nil {
+		if _, err := clients.Bot.Send(deleteMsg); err != nil {
 			log.Println(err)
 		}
 
-		cust.Players[playerID].OccupiedSells = cust.Players[playerID].OccupiedSells[1:]
+		clients.Players[playerID].OccupiedSells = clients.Players[playerID].OccupiedSells[1:]
 	}
-	cust.SaveBase()
+	clients.SaveBase()
 }
 
-func TemporaryMessage(playerID, text string) {
-	replymsg := tgbotapi.NewMessage(cust.Players[playerID].ChatID, cust.Players[playerID].Location.Dictionary[text])
+func TemporaryMessage(playerID int, text string) {
+	replymsg := tgbotapi.NewMessage(clients.Players[playerID].ChatID, clients.Players[playerID].Location.Dictionary[text])
 
-	msgData, err := cust.Bot.Send(replymsg)
+	msgData, err := clients.Bot.Send(replymsg)
 	if err != nil {
 		log.Println(err)
 	}
 
-	cust.Players[playerID].OccupiedSells = append(cust.Players[playerID].OccupiedSells, msgData.MessageID)
-	cust.SaveBase()
+	clients.Players[playerID].OccupiedSells = append(clients.Players[playerID].OccupiedSells, msgData.MessageID)
+	clients.SaveBase()
 }
 
-func SimpleMsg(playerID, text string) {
-	msg := tgbotapi.NewMessage(cust.Players[playerID].ChatID, cust.Players[playerID].Location.Dictionary[text])
+func SimpleMsg(playerID int, text string) {
+	msg := tgbotapi.NewMessage(clients.Players[playerID].ChatID, clients.Players[playerID].Location.Dictionary[text])
 
-	if _, err := cust.Bot.Send(msg); err != nil {
+	if _, err := clients.Bot.Send(msg); err != nil {
 		log.Println(err)
 	}
-}
-
-func ParseMarkUp(playerID string) tgbotapi.InlineKeyboardMarkup {
-	var masOfButton [9]tgbotapi.InlineKeyboardButton
-	var masOfRow [3][]tgbotapi.InlineKeyboardButton
-
-	for i := 1; i <= 9; i++ {
-		switch cust.Players[playerID].Field.PlayingField[(i-1)/3][(i-1)%3] {
-		case 0:
-			button := tgbotapi.NewInlineKeyboardButtonData(" ", strconv.Itoa(i))
-			masOfButton[i-1] = button
-		case 1:
-			masOfButton[i-1] = crossButton
-		case 2:
-			masOfButton[i-1] = zeroButton
-		}
-	}
-
-	for i := 0; i < 3; i++ {
-		buttonRow := tgbotapi.NewInlineKeyboardRow(masOfButton[i*3], masOfButton[i*3+1], masOfButton[i*3+2])
-		masOfRow[i] = buttonRow
-	}
-
-	buttonMatrix := tgbotapi.NewInlineKeyboardMarkup(masOfRow[0], masOfRow[1], masOfRow[2])
-
-	return buttonMatrix
 }

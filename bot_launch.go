@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	cust "github.com/Stepan1328/game-test-bot/customers"
+	"github.com/Stepan1328/game-test-bot/clients"
 	gl "github.com/Stepan1328/game-test-bot/game_logic"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
@@ -10,13 +10,13 @@ import (
 	"strings"
 )
 
-func ActionsWithUpdates(updates *tgbotapi.UpdatesChannel) {
-	for update := range *updates {
-		go CheckUpdate(&update)
+func ActionsWithUpdates(updates tgbotapi.UpdatesChannel) {
+	for update := range updates {
+		checkUpdate(&update)
 	}
 }
 
-func CheckUpdate(update *tgbotapi.Update) {
+func checkUpdate(update *tgbotapi.Update) {
 	if update.Message == nil && update.CallbackQuery == nil {
 		return
 	}
@@ -25,21 +25,38 @@ func CheckUpdate(update *tgbotapi.Update) {
 		return
 	}
 
-	Message := update.Message
-	runGame := cust.Players[Message.From.UserName].RunGame
-	fmt.Println(Message.Text)
+	fmt.Println(update.Message.Text)
 
-	if Message.Command() == "stopgame" {
-		StopGame(update)
+	if update.Message.Command() == "stopgame" {
+		stopGame(update)
 		return
 	}
 
-	if Message.Command() != "" && !runGame {
-		RecognitionCommand(update)
+	runGame := clients.Players[update.Message.From.ID].RunGame
+	runBattle := false
+	if _, inBase := clients.Battles[update.Message.From.UserName]; inBase {
+		runBattle = clients.Battles[update.Message.From.UserName].RunGame
 	}
 
 	if runGame {
-		gl.SimpleMsg(Message.From.UserName, "unfinished")
+		gl.SimpleMsg(update.Message.From.ID, "unfinished_game")
+		return
+	}
+
+	if _, inBase := clients.Battles[update.Message.From.UserName]; inBase {
+		if update.Message.Command() == "leave" {
+			stopBattle(update)
+			return
+		}
+	}
+
+	if runBattle {
+		gl.SimpleMsg(update.Message.From.ID, "unfinished_battle")
+		return
+	}
+
+	if update.Message.Command() != "" && !runGame && !runBattle {
+		recognitionCommand(update)
 		return
 	}
 }
@@ -47,15 +64,14 @@ func CheckUpdate(update *tgbotapi.Update) {
 func CheckPlayer(update *tgbotapi.Update) bool {
 	// check username and is it in the base via Message
 	if update.Message != nil {
-		if update.Message.From.UserName == "" {
-			NoneUserNamePlayer(update.Message.Chat.ID)
-			fmt.Println("NoneUserNamePlayer")
-			return true
+		if _, inBase := clients.Players[update.Message.From.ID]; !inBase {
+			addToPlayerBase(update.Message.From.ID, update.Message.Chat.ID)
+			fmt.Println("PLayer added to player base")
 		}
 
-		if _, inBase := cust.Players[update.Message.From.UserName]; !inBase {
-			addToPlayerBase(update.Message.From.UserName, update.Message.Chat.ID)
-			fmt.Println("PLayer added to player base")
+		if update.Message.From.UserName != "" {
+			clients.Players[update.Message.From.ID].UserName = update.Message.From.UserName
+			clients.Compatibility[update.Message.From.UserName] = update.Message.From.ID
 		}
 	}
 
@@ -70,79 +86,91 @@ func CheckPlayer(update *tgbotapi.Update) bool {
 }
 
 func checkCallback(update *tgbotapi.Update) {
-	CallbackQuery := update.CallbackQuery
+	callbackQuery := update.CallbackQuery
 
 	// check username and is it in the base via Callback
-	if CallbackQuery.From.UserName == "" {
-		NoneUserNamePlayer(CallbackQuery.Message.Chat.ID)
-		fmt.Println("NoneUserNamePlayer")
-		return
-	}
-
-	if _, inBase := cust.Players[CallbackQuery.From.UserName]; !inBase {
-		addToPlayerBase(CallbackQuery.From.UserName, CallbackQuery.Message.Chat.ID)
+	if _, inBase := clients.Players[callbackQuery.From.ID]; !inBase {
+		addToPlayerBase(callbackQuery.From.ID, callbackQuery.Message.Chat.ID)
 		fmt.Println("PLayer added to player base")
 	}
 
+	if callbackQuery.From.UserName != "" {
+		clients.Players[callbackQuery.From.ID].UserName = callbackQuery.From.UserName
+		clients.Compatibility[callbackQuery.From.UserName] = callbackQuery.From.ID
+	}
+
 	// translate gameUpdate (check run game and check Unlock mutex)
-	if cust.Players[CallbackQuery.From.UserName].RunGame {
-		if !cust.Players[CallbackQuery.From.UserName].Field.Mutex {
-			return
-		}
-		go gl.ListenCallbackQuery(update)
-		cust.TranslateUpdate <- *update.CallbackQuery
+	if clients.Players[callbackQuery.From.ID].RunGame {
+		clients.TranslateUpdate <- *update.CallbackQuery
 		return
 	}
 
 	// translate battleUpdate (check run game and check Unlock mutex)
-	if _, inBase := cust.Battles[CallbackQuery.From.UserName]; inBase {
-		if cust.Players[CallbackQuery.From.UserName].RunGame { // TODO: mutex
-			cust.TranslateBattle <- *CallbackQuery // TODO: checking the opponent's employment
+	if _, inBase := clients.Battles[callbackQuery.From.UserName]; inBase {
+		if clients.Battles[callbackQuery.From.UserName].RunGame {
+			clients.TranslateBattle <- *callbackQuery
+			return
 		}
 	}
 
+	// analyzing the response to a request
+	if callbackQuery.Data == "yes" || callbackQuery.Data == "no" {
+		gl.AnalyzeResponseToRequest(callbackQuery)
+		return
+	}
+
 	// translate lang change
-	ChangeLanguage(CallbackQuery)
+	changeLanguage(callbackQuery)
 }
 
-func addToPlayerBase(PlayerID string, chatID int64) {
-	cust.Players[PlayerID] = &cust.UsersStatistic{
-		ChatID: chatID,
-		Location: &cust.Localization{
+func addToPlayerBase(PlayerID int, chatID int64) {
+	clients.Players[PlayerID] = &clients.UsersStatistic{
+		BattleInvite: true,
+		ChatID:       chatID,
+		Location: &clients.Localization{
 			Language: "en",
 		},
-		Field: &cust.Field{
-			Mutex:        true,
+		Field: &clients.Field{
 			PlayingField: [3][3]int{},
 			Move:         1,
 		},
 	}
 
-	cust.SaveBase()
-	cust.Players[PlayerID].ParseLangMap()
+	clients.SaveBase()
+	clients.Players[PlayerID].ParseLangMap()
 }
 
-func NoneUserNamePlayer(chatID int64) {
-	msg := tgbotapi.NewMessage(chatID, "Sorry, but you don't have a Username in your telegram profile\nAdd it by going to Settings -> Edit -> Username")
+//func NoneUserNamePlayer(chatID int64) {
+//	msg := tgbotapi.NewMessage(chatID, "Sorry, but you don't have a Username in your telegram profile\nAdd it by going to Settings -> Edit -> Username")
+//
+//	if _, err := cust.Bot.Send(msg); err != nil {
+//		log.Println(err)
+//	}
+//}
 
-	if _, err := cust.Bot.Send(msg); err != nil {
-		log.Println(err)
-	}
-}
-
-func StopGame(update *tgbotapi.Update) {
-	if cust.Players[update.Message.From.UserName].RunGame {
-		go gl.ListenCallbackQuery(update)
-		cust.StopChannel <- *update.Message
+func stopGame(update *tgbotapi.Update) {
+	if clients.Players[update.Message.From.ID].RunGame {
+		clients.StopChannel <- *update.Message
+		fmt.Println("game stopped")
 	} else {
-		gl.SimpleMsg(update.Message.From.UserName, "norungame")
+		gl.SimpleMsg(update.Message.From.ID, "no_run_game")
+		fmt.Println("no games started")
 	}
-	fmt.Println("game stopped")
 }
 
-func SetLanguage(update *tgbotapi.Update) {
-	playerID := update.Message.From.UserName
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, cust.Players[update.Message.From.UserName].Location.Dictionary["change_lang"])
+func stopBattle(update *tgbotapi.Update) {
+	if clients.Battles[update.Message.From.UserName].RunGame {
+		clients.StopBattleChannel <- *update.Message
+		fmt.Println("battle stopped")
+	} else {
+		gl.SimpleMsg(update.Message.From.ID, "no_run_battle")
+		fmt.Println("no battles started")
+	}
+}
+
+func setLanguage(update *tgbotapi.Update) {
+	playerID := update.Message.From.ID
+	msg := tgbotapi.NewMessage(clients.Players[playerID].ChatID, clients.Players[playerID].Location.Dictionary["change_lang"])
 
 	ru := tgbotapi.NewInlineKeyboardButtonData("Русский", "ru")
 	en := tgbotapi.NewInlineKeyboardButtonData("English", "en")
@@ -150,73 +178,91 @@ func SetLanguage(update *tgbotapi.Update) {
 
 	msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(row)
 
-	msgData, err := cust.Bot.Send(msg)
+	msgData, err := clients.Bot.Send(msg)
 	if err != nil {
 		log.Println(err)
 	}
-	cust.Players[playerID].OccupiedSells = append(cust.Players[playerID].OccupiedSells, msgData.MessageID)
+	clients.Players[playerID].OccupiedSells = append(clients.Players[playerID].OccupiedSells, msgData.MessageID)
 }
 
-func ChangeSide(update *tgbotapi.Update) {
-	playerID := update.Message.From.UserName
+func changeSide(update *tgbotapi.Update) {
+	playerID := update.Message.From.ID
 
-	if cust.Players[playerID].FirstMove {
-		cust.Players[playerID].FirstMove = false
+	if clients.Players[playerID].FirstMove {
+		clients.Players[playerID].FirstMove = false
 		gl.SimpleMsg(playerID, "play_zero")
 	} else {
-		cust.Players[playerID].FirstMove = true
+		clients.Players[playerID].FirstMove = true
 		gl.SimpleMsg(playerID, "play_cross")
 	}
-	cust.SaveBase()
+	clients.SaveBase()
 }
 
-func GameLaunch(update *tgbotapi.Update) {
+func gameLaunch(update *tgbotapi.Update) {
 	fmt.Println(update.Message.From.FirstName, update.Message.From.LastName)
 
-	playerID := update.Message.From.UserName
+	playerID := update.Message.From.ID
 	gl.Tttgame(update)
-	cust.Players[playerID].ChatID = update.Message.Chat.ID
-	cust.Players[playerID].RunGame = true
-	go gl.ListenCallbackQuery(update)
+	clients.Players[playerID].ChatID = update.Message.Chat.ID
+	clients.Players[playerID].RunGame = true
 
-	cust.SaveBase()
+	gl.FirstMove(update)
+	clients.SaveBase()
 }
 
-func BattleLaunch(update *tgbotapi.Update) {
+func battleLaunch(update *tgbotapi.Update) {
 	fmt.Println(update.Message.From.FirstName, update.Message.From.LastName)
 
-	if !checkBattleBase(update) {
+	userName1 := update.Message.From.UserName
+	userID2, okBase := checkBattleBase(update)
+	if !okBase {
 		return
 	}
 
-	go gl.Tttbattle(update.Message.From.UserName)
+	if clients.Players[userID2].BattleInvite {
+		gl.Tttbattle(userName1)
+	} else {
+		gl.SimpleMsg(update.Message.From.ID, "player_dis_notify")
+		return
+	}
 }
 
-func checkBattleBase(update *tgbotapi.Update) bool {
-	p1UserName := update.Message.From.UserName
+func checkBattleBase(update *tgbotapi.Update) (int, bool) {
+	userID1 := update.Message.From.ID
 	if strings.Count(update.Message.Text, "/tttbattle @") != 1 {
-		gl.SimpleMsg(p1UserName, "invalid_opponent")
-		return false
+		gl.SimpleMsg(userID1, "invalid_opponent")
+		return 0, false
 	}
 
-	p2UserName := strings.Replace(update.Message.Text, "/tttbattle @", "", 1)
-	if strings.Count(p2UserName, " ") > 0 || len(p2UserName) < 5 {
-		gl.SimpleMsg(p1UserName, "invalid_opponent")
-		return false
+	userName2 := strings.Replace(update.Message.Text, "/tttbattle @", "", 1)
+	if strings.Count(userName2, " ") > 0 || len(userName2) < 5 {
+		gl.SimpleMsg(userID1, "invalid_opponent")
+		return 0, false
 	}
 
-	if p1UserName == p2UserName {
-		gl.SimpleMsg(p1UserName, "reversible_req")
-		return false
+	userName1 := clients.Players[userID1].UserName
+	if userName1 == userName2 {
+		gl.SimpleMsg(userID1, "reversible_req")
+		return 0, false
 	}
 
-	if _, inBase := cust.Battles[p1UserName+","+p2UserName]; !inBase {
-		addToBattlesBase(p1UserName, p2UserName)
+	userID2 := clients.Compatibility[userName2]
+
+	if _, inBase := clients.Players[userID2]; !inBase {
+		gl.SimpleMsg(userID1, "player_not_found")
+		return 0, false
+	}
+
+	if _, inBase := clients.Battles[userName1+","+userName2]; !inBase {
+		addToBattlesBase(userName1, userName2)
 		fmt.Println("Players added to battle map")
-		return true
+		return userID2, true
 	}
 
-	return true
+	clients.Battles[userName1] = &*clients.Battles[userName1+","+userName2]
+	clients.Battles[userName2] = &*clients.Battles[userName1+","+userName2]
+
+	return userID2, true
 }
 
 func addToBattlesBase(userName1, userName2 string) {
@@ -228,60 +274,78 @@ func addToBattlesBase(userName1, userName2 string) {
 		firstMove = false
 	}
 
-	cust.Battles[userName1+","+userName2] = &cust.BattleStatistic{
+	clients.Battles[userName1+","+userName2] = &clients.BattleStatistic{
 		FirstMove: firstMove,
-		Player1: &cust.Player{
+		Player1: &clients.Player{
 			UserName: userName1,
+			PlayerId: clients.Compatibility[userName1],
 			Queue:    firstMove,
 		},
-		Player2: &cust.Player{
+		Player2: &clients.Player{
 			UserName: userName2,
+			PlayerId: clients.Compatibility[userName2],
 			Queue:    !firstMove,
 		},
-		Field: &cust.Field{
+		Field: &clients.Field{
 			PlayingField: [3][3]int{},
 			Move:         1,
 		},
 	}
 
-	cust.Battles[userName2+","+userName1] = &*cust.Battles[userName1+","+userName2]
-	cust.Battles[userName1] = &*cust.Battles[userName1+","+userName2]
-	cust.Battles[userName2] = &*cust.Battles[userName1+","+userName2]
+	clients.Battles[userName2+","+userName1] = &*clients.Battles[userName1+","+userName2]
+	clients.Battles[userName1] = &*clients.Battles[userName1+","+userName2]
+	clients.Battles[userName2] = &*clients.Battles[userName1+","+userName2]
 
-	cust.SaveBase()
+	clients.SaveBase()
 }
 
-func ChangeLanguage(updateCallback *tgbotapi.CallbackQuery) {
-	playerID := updateCallback.From.UserName
+func changeBattleInvite(update *tgbotapi.Update) {
+	playerID := update.Message.From.ID
+
+	if clients.Players[playerID].BattleInvite {
+		clients.Players[playerID].BattleInvite = false
+		gl.SimpleMsg(playerID, "disable_notifications")
+	} else {
+		clients.Players[playerID].BattleInvite = true
+		gl.SimpleMsg(playerID, "enable_notifications")
+	}
+
+	clients.SaveBase()
+}
+
+func changeLanguage(updateCallback *tgbotapi.CallbackQuery) {
+	playerID := updateCallback.From.ID
 	switch updateCallback.Data {
 	case "ru":
-		cust.Players[playerID].Location.Language = "ru"
+		clients.Players[playerID].Location.Language = "ru"
 	case "en":
-		cust.Players[playerID].Location.Language = "en"
+		clients.Players[playerID].Location.Language = "en"
 	default:
 		gl.SimpleMsg(playerID, "finished_game")
 		return
 	}
-	cust.Players[playerID].ParseLangMap()
+	clients.Players[playerID].ParseLangMap()
 
 	gl.SimpleMsg(playerID, "lang_set")
 
-	cust.SaveBase()
+	clients.SaveBase()
 	go gl.DeleteMessage(playerID)
 }
 
-func RecognitionCommand(update *tgbotapi.Update) {
+func recognitionCommand(update *tgbotapi.Update) {
 	switch update.Message.Command() {
 	case "setlanguage":
-		SetLanguage(update)
+		setLanguage(update)
 	case "changeside":
-		ChangeSide(update)
+		changeSide(update)
 	case "tttgame":
-		GameLaunch(update)
+		gameLaunch(update)
 	case "tttbattle":
-		BattleLaunch(update)
+		battleLaunch(update)
+	case "muteinvite":
+		changeBattleInvite(update)
 	case "start":
-		gl.SimpleMsg(update.Message.From.UserName, "start")
+		gl.SimpleMsg(update.Message.From.ID, "start")
 	default:
 	}
 }

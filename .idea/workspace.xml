@@ -20,17 +20,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="591fb071-010b-4212-9459-7d7752f32332" name="Default Changelist" comment="&quot;Fixed parallel game launch errors&quot;">
-      <change afterPath="$PROJECT_DIR$/database/battlesBase.json" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/game_logic/battle.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/assets/en.json" beforeDir="false" afterPath="$PROJECT_DIR$/assets/en.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/assets/ru.json" beforeDir="false" afterPath="$PROJECT_DIR$/assets/ru.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot_launch.go" beforeDir="false" afterPath="$PROJECT_DIR$/bot_launch.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/customers/chanels.go" beforeDir="false" afterPath="$PROJECT_DIR$/customers/chanels.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/customers/parameters.go" beforeDir="false" afterPath="$PROJECT_DIR$/customers/parameters.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game_logic/action.go" beforeDir="false" afterPath="$PROJECT_DIR$/customers/action.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game_logic/checkWinner.go" beforeDir="false" afterPath="$PROJECT_DIR$/customers/checkWinner.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/customers/action.go" beforeDir="false" afterPath="$PROJECT_DIR$/clients/action.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/customers/chanels.go" beforeDir="false" afterPath="$PROJECT_DIR$/clients/chanels.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/customers/checkWinner.go" beforeDir="false" afterPath="$PROJECT_DIR$/clients/checkWinner.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/customers/parameters.go" beforeDir="false" afterPath="$PROJECT_DIR$/clients/parameters.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game_logic/moves.go" beforeDir="false" afterPath="$PROJECT_DIR$/game_logic/moves.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
     </list>
@@ -83,7 +81,7 @@
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="editor.reader.mode" />
+    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -116,19 +114,19 @@
       <directory value="$PROJECT_DIR$" />
       <method v="2" />
     </configuration>
-    <configuration name="go build github.com/Stepan1328/game-test-bot" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="GameTestbot" />
-      <working_directory value="$PROJECT_DIR$" />
-      <kind value="PACKAGE" />
-      <filePath value="$PROJECT_DIR$/main.go" />
-      <package value="github.com/Stepan1328/game-test-bot" />
-      <directory value="$PROJECT_DIR$" />
-      <method v="2" />
-    </configuration>
     <configuration name="go build github.com/Stepan1328/game-test-bot/syntheticIntellect" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="GameTestbot" />
       <working_directory value="$PROJECT_DIR$" />
       <kind value="PACKAGE" />
+      <package value="github.com/Stepan1328/game-test-bot" />
+      <directory value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build saveBase.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="GameTestBot" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <filePath value="$PROJECT_DIR$/customers/saveBase.go" />
       <package value="github.com/Stepan1328/game-test-bot" />
       <directory value="$PROJECT_DIR$" />
       <method v="2" />
@@ -152,19 +150,19 @@
     </configuration>
     <list>
       <item itemvalue="Go Build.go build" />
-      <item itemvalue="Go Build.go build github.com/Stepan1328/game-test-bot" />
       <item itemvalue="Go Build.go build github.com/Stepan1328/game-test-bot/syntheticIntellect" />
       <item itemvalue="Go Build.go build syntheticIntellect.go" />
       <item itemvalue="Go Build.go build github.com/Stepan1328/game-test-bot (1)" />
       <item itemvalue="Go Build.go build bot_launch.go" />
+      <item itemvalue="Go Build.go build saveBase.go" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Build.go build saveBase.go" />
         <item itemvalue="Go Build.go build bot_launch.go" />
         <item itemvalue="Go Build.go build github.com/Stepan1328/game-test-bot (1)" />
         <item itemvalue="Go Build.go build github.com/Stepan1328/game-test-bot/syntheticIntellect" />
         <item itemvalue="Go Build.go build syntheticIntellect.go" />
-        <item itemvalue="Go Build.go build github.com/Stepan1328/game-test-bot" />
       </list>
     </recent_temporary>
   </component>
@@ -204,7 +202,9 @@
     <MESSAGE value="&quot;add folder&quot;" />
     <MESSAGE value="&quot;add database&quot;" />
     <MESSAGE value="&quot;added saving of all parameters of all players&quot;" />
-    <option name="LAST_COMMIT_MESSAGE" value="&quot;added saving of all parameters of all players&quot;" />
+    <MESSAGE value="&quot;make battle&quot;" />
+    <MESSAGE value="&quot;fixed bugs&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="&quot;fixed bugs&quot;" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>

@@ -1,4 +1,4 @@
-package cust
+package clients
 
 func CheckingWinner(playField [3][3]int, move int) (bool, int) {
 	victory := false

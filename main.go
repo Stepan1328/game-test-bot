@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/Stepan1328/game-test-bot/customers"
+	"github.com/Stepan1328/game-test-bot/clients"
+	"github.com/Stepan1328/game-test-bot/game_logic"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
 	"os"
@@ -9,10 +10,12 @@ import (
 
 func main() {
 	var updates tgbotapi.UpdatesChannel
-	cust.UploadDatabase()
-	cust.Bot, updates = startBot()
+	clients.UploadDatabase()
 
-	ActionsWithUpdates(&updates)
+	startHandler()
+	clients.Bot, updates = startBot()
+
+	ActionsWithUpdates(updates)
 }
 
 func startBot() (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {
@@ -38,4 +41,18 @@ func startBot() (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {
 func takeBotToken() string {
 	content, _ := os.ReadFile("./botToken.txt")
 	return string(content)
+}
+
+func startHandler() {
+	go func() {
+		for {
+			game_logic.Motion()
+		}
+	}()
+
+	go func() {
+		for {
+			game_logic.BattleMotion()
+		}
+	}()
 }
