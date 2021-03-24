@@ -31,5 +31,6 @@
   "enable_notifications": "Incoming invitations are enabled \uD83D\uDD14",
   "disable_notifications": "Incoming invitations are muted \uD83D\uDD15",
   "player_dis_notify": "This player has turned off invitation notifications, so you won't be able to play with them \uD83D\uDE14",
-  "player_not_found": "Hmm, strange, but I don't see a player with this nickname in my database, maybe he hasn't launched me on his device yet \uD83D\uDE41"
+  "player_not_found": "Hmm, strange, but I don't see a player with this nickname in my database, maybe he hasn't launched me on his device yet \uD83D\uDE41",
+  "not_player_move": "It's not your turn now"
 }
