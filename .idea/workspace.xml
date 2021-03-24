@@ -20,17 +20,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="591fb071-010b-4212-9459-7d7752f32332" name="Default Changelist" comment="&quot;Fixed parallel game launch errors&quot;">
-      <change afterPath="$PROJECT_DIR$/game_logic/battle.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/clients/battle_action.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/assets/en.json" beforeDir="false" afterPath="$PROJECT_DIR$/assets/en.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/assets/ru.json" beforeDir="false" afterPath="$PROJECT_DIR$/assets/ru.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot_launch.go" beforeDir="false" afterPath="$PROJECT_DIR$/bot_launch.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/customers/action.go" beforeDir="false" afterPath="$PROJECT_DIR$/clients/action.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/customers/chanels.go" beforeDir="false" afterPath="$PROJECT_DIR$/clients/chanels.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/customers/checkWinner.go" beforeDir="false" afterPath="$PROJECT_DIR$/clients/checkWinner.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/customers/parameters.go" beforeDir="false" afterPath="$PROJECT_DIR$/clients/parameters.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/clients/action.go" beforeDir="false" afterPath="$PROJECT_DIR$/clients/action.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game_logic/battle.go" beforeDir="false" afterPath="$PROJECT_DIR$/game_logic/battle.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game_logic/moves.go" beforeDir="false" afterPath="$PROJECT_DIR$/game_logic/moves.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,7 +69,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="go.import.settings.migrated" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/dataBackUp" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -85,6 +81,7 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/dataBackUp" />
       <recent name="$PROJECT_DIR$" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -204,7 +201,9 @@
     <MESSAGE value="&quot;added saving of all parameters of all players&quot;" />
     <MESSAGE value="&quot;make battle&quot;" />
     <MESSAGE value="&quot;fixed bugs&quot;" />
-    <option name="LAST_COMMIT_MESSAGE" value="&quot;fixed bugs&quot;" />
+    <MESSAGE value="&quot;make battle games&quot;" />
+    <MESSAGE value="&quot;added msg to the battles&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="&quot;added msg to the battles&quot;" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
