@@ -1,7 +1,6 @@
 package game_logic
 
 import (
-	"fmt"
 	"github.com/Stepan1328/game-test-bot/clients"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
@@ -120,7 +119,14 @@ func identifyPlayers(userName string) (int, int) {
 func BattleMotion() {
 	select {
 	case updateCallback := <-clients.TranslateBattle:
-		fmt.Println(updateCallback)
+		userName := updateCallback.From.UserName
+		msgId := updateCallback.Message.MessageID
+		if !clients.Battles[userName].CheckMsg(msgId, userName) {
+			TemporaryMessage(updateCallback.From.ID, "irrelevant_field")
+			return
+		}
+
+		makeMove(updateCallback)
 	case Message := <-clients.StopBattleChannel:
 		stopGameMsg(clients.Battles[Message.From.UserName].Player1.PlayerId)
 		stopGameMsg(clients.Battles[Message.From.UserName].Player2.PlayerId)
@@ -130,6 +136,26 @@ func BattleMotion() {
 
 		clients.CheckInvitationStack(clients.Compatibility[Message.From.UserName])
 	}
+}
+
+func makeMove(updateCallback tgbotapi.CallbackQuery) {
+	playerID := updateCallback.From.ID
+	userName := updateCallback.From.UserName
+	if !clients.Battles[userName].CheckQueue(userName) {
+		TemporaryMessage(playerID, "not_player_move")
+		clients.SaveBase()
+		return
+	}
+
+	if updateCallback.Data == " " {
+		TemporaryMessage(playerID, "occupied_cell")
+		clients.SaveBase()
+		return
+	}
+
+	clients.Battles[updateCallback.From.UserName].HumanBattleMove(updateCallback.Data)
+	DeleteMessage(clients.Battles[userName].Player1.PlayerId)
+	DeleteMessage(clients.Battles[userName].Player2.PlayerId)
 }
 
 func stopGameMsg(playerID int) {

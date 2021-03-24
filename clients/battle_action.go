@@ -8,6 +8,9 @@ import (
 )
 
 func (user *BattleStatistic) HumanBattleMove(data string) {
+	if !user.RunGame {
+		return
+	}
 	numberOfCell, err := strconv.Atoi(data)
 	if err != nil {
 		log.Println(err)
@@ -58,7 +61,10 @@ func (player *Player) sendEditTitle(offset int) {
 			text = Players[player.PlayerId].Location.Dictionary["battle_zero_no_his_turn"]
 		}
 	}
+
 	editMsg := tgbotapi.NewEditMessageText(Players[player.PlayerId].ChatID, player.MsgID, text)
+	userName := Players[player.PlayerId].UserName
+	editMsg.ReplyMarkup = &Battles[userName].FieldMarkup
 
 	if _, err := Bot.Send(editMsg); err != nil {
 		log.Println(err)
@@ -117,6 +123,7 @@ func (user *BattleStatistic) CheckSituation() bool {
 
 	if user.Field.Move > 9 {
 		user.sendDrawMsg()
+		user.ClearField()
 		if user.FirstMove {
 			user.FirstMove = false
 		} else {

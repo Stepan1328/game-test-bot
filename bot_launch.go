@@ -140,13 +140,13 @@ func addToPlayerBase(PlayerID int, chatID int64) {
 	clients.Players[PlayerID].ParseLangMap()
 }
 
-//func NoneUserNamePlayer(chatID int64) {
-//	msg := tgbotapi.NewMessage(chatID, "Sorry, but you don't have a Username in your telegram profile\nAdd it by going to Settings -> Edit -> Username")
-//
-//	if _, err := cust.Bot.Send(msg); err != nil {
-//		log.Println(err)
-//	}
-//}
+func noneUserNamePlayer(chatID int64) {
+	msg := tgbotapi.NewMessage(chatID, "Sorry, but you don't have a Username in your telegram profile\nAdd it by going to Settings -> Edit -> Username")
+
+	if _, err := clients.Bot.Send(msg); err != nil {
+		log.Println(err)
+	}
+}
 
 func stopGame(update *tgbotapi.Update) {
 	if clients.Players[update.Message.From.ID].RunGame {
@@ -214,6 +214,11 @@ func battleLaunch(update *tgbotapi.Update) {
 	fmt.Println(update.Message.From.FirstName, update.Message.From.LastName)
 
 	userName1 := update.Message.From.UserName
+	if userName1 == "" {
+		noneUserNamePlayer(update.Message.Chat.ID)
+		return
+	}
+
 	userID2, okBase := checkBattleBase(update)
 	if !okBase {
 		return

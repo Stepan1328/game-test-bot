@@ -20,11 +20,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="591fb071-010b-4212-9459-7d7752f32332" name="Default Changelist" comment="&quot;Fixed parallel game launch errors&quot;">
-      <change afterPath="$PROJECT_DIR$/clients/battle_action.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/en.json" beforeDir="false" afterPath="$PROJECT_DIR$/assets/en.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/ru.json" beforeDir="false" afterPath="$PROJECT_DIR$/assets/ru.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/clients/action.go" beforeDir="false" afterPath="$PROJECT_DIR$/clients/action.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot_launch.go" beforeDir="false" afterPath="$PROJECT_DIR$/bot_launch.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/clients/battle_action.go" beforeDir="false" afterPath="$PROJECT_DIR$/clients/battle_action.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game_logic/battle.go" beforeDir="false" afterPath="$PROJECT_DIR$/game_logic/battle.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game_logic/moves.go" beforeDir="false" afterPath="$PROJECT_DIR$/game_logic/moves.go" afterDir="false" />
     </list>
@@ -69,7 +67,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="go.import.settings.migrated" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/dataBackUp" />
+    <property name="last_opened_file_path" value="$USER_HOME$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -180,7 +178,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="&quot;the game mechanics have been completed&quot;" />
     <MESSAGE value="&quot;change the parallel game&quot;" />
     <MESSAGE value="&quot;functions are distributed&quot;" />
     <MESSAGE value="&quot;make changes&quot;" />
@@ -203,7 +200,10 @@
     <MESSAGE value="&quot;fixed bugs&quot;" />
     <MESSAGE value="&quot;make battle games&quot;" />
     <MESSAGE value="&quot;added msg to the battles&quot;" />
-    <option name="LAST_COMMIT_MESSAGE" value="&quot;added msg to the battles&quot;" />
+    <MESSAGE value="&quot;The methods are divided into battle and game&quot;" />
+    <MESSAGE value="&quot;&quot;" />
+    <MESSAGE value="&quot;Added messages&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="&quot;Added messages&quot;" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>

@@ -58,21 +58,21 @@ func Motion() {
 	}
 }
 
-func makeDoubleMove(updateCallback tgbotapi.CallbackQuery) bool {
+func makeDoubleMove(updateCallback tgbotapi.CallbackQuery) {
 	playerID := updateCallback.From.ID
 	if updateCallback.Data == " " {
 		TemporaryMessage(playerID, "occupied_cell")
 		clients.SaveBase()
-		return false
+		return
 	}
 
 	DeleteMessage(playerID)
 
 	if clients.Players[playerID].HumanMove(updateCallback.Data) {
-		return true
+		return
 	}
 
-	return clients.Players[playerID].BotMove()
+	clients.Players[playerID].BotMove()
 }
 
 func DeleteMessage(playerID int) {
