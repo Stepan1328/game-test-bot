@@ -11,7 +11,7 @@
   "unfinished_game": "Please finish playing the game or finish ahead of schedule by writing\n/stopgame",
   "unfinished_battle": "Please finish the battle or give up by writing\n/leave",
   "no_run_game": "No running game\nTry to write /tttgame to play tic tac toe",
-  "no_run_battle": "No running battles\nTry writing /battle @<opponent's nickname> to play tic-tac-toe",
+  "no_run_battle": "No running battles\nTry writing /tttbattle @<opponent's nickname> to play tic-tac-toe",
   "change_lang": "Please select a language",
   "lang_set": "The language was set",
   "finished_game": "This game is already finished",
