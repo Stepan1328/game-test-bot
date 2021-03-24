@@ -136,7 +136,9 @@ func (user *UsersStatistic) BotMove() bool {
 
 	if user.CheckSituation() {
 		SaveBase()
-		CheckInvitationStack(Compatibility[user.UserName])
+		if user.UserName != "" {
+			CheckInvitationStack(Compatibility[user.UserName])
+		}
 		return true
 	}
 

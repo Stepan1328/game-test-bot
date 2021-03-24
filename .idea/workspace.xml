@@ -21,10 +21,7 @@
   <component name="ChangeListManager">
     <list default="true" id="591fb071-010b-4212-9459-7d7752f32332" name="Default Changelist" comment="&quot;Fixed parallel game launch errors&quot;">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot_launch.go" beforeDir="false" afterPath="$PROJECT_DIR$/bot_launch.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/clients/battle_action.go" beforeDir="false" afterPath="$PROJECT_DIR$/clients/battle_action.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game_logic/battle.go" beforeDir="false" afterPath="$PROJECT_DIR$/game_logic/battle.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game_logic/moves.go" beforeDir="false" afterPath="$PROJECT_DIR$/game_logic/moves.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/clients/action.go" beforeDir="false" afterPath="$PROJECT_DIR$/clients/action.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -178,7 +175,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="&quot;change the parallel game&quot;" />
     <MESSAGE value="&quot;functions are distributed&quot;" />
     <MESSAGE value="&quot;make changes&quot;" />
     <MESSAGE value="&quot;Fixed parallel game launch errors&quot;" />
@@ -203,7 +199,8 @@
     <MESSAGE value="&quot;The methods are divided into battle and game&quot;" />
     <MESSAGE value="&quot;&quot;" />
     <MESSAGE value="&quot;Added messages&quot;" />
-    <option name="LAST_COMMIT_MESSAGE" value="&quot;Added messages&quot;" />
+    <MESSAGE value="&quot;the battle is almost finished&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="&quot;the battle is almost finished&quot;" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
