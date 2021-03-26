@@ -149,7 +149,7 @@ func (user *BattleStatistic) sendDrawMsg() {
 }
 
 func (player *Player) sendBattleDrawMsg() {
-	drawMessage := tgbotapi.NewMessage(Players[player.PlayerId].ChatID, Players[player.PlayerId].Location.Dictionary["draw"])
+	drawMessage := tgbotapi.NewMessage(Players[player.PlayerId].ChatID, Players[player.PlayerId].Location.Dictionary["battle_draw"])
 
 	if _, err := Bot.Send(drawMessage); err != nil {
 		log.Println(err)
@@ -166,7 +166,7 @@ func (user *BattleStatistic) sendWinMsg() bool {
 	move := user.Field.Move
 	user.Player1.sendBattleWinMsg(move)
 	user.Player2.sendBattleWinMsg(move)
-
+	user.increaseScore()
 	fmt.Println("found the winner")
 
 	return win
@@ -176,12 +176,29 @@ func (player *Player) sendBattleWinMsg(move int) {
 	winMessage := tgbotapi.NewMessage(Players[player.PlayerId].ChatID, "")
 
 	if move%2 == 0 {
-		winMessage.Text = Players[player.PlayerId].Location.Dictionary["win_cross"]
+		winMessage.Text = Players[player.PlayerId].Location.Dictionary["battle_win_cross"]
 	} else {
-		winMessage.Text = Players[player.PlayerId].Location.Dictionary["win_zero"]
+		winMessage.Text = Players[player.PlayerId].Location.Dictionary["battle_win_zero"]
 	}
 
 	if _, err := Bot.Send(winMessage); err != nil {
 		log.Println(err)
 	}
+}
+
+func (user *BattleStatistic) increaseScore() {
+	if user.FirstMove {
+		if (user.Field.Move-1)%2 == 1 {
+			user.Player1.Score++
+		} else {
+			user.Player2.Score++
+		}
+	} else {
+		if (user.Field.Move-1)%2 == 1 {
+			user.Player2.Score++
+		} else {
+			user.Player1.Score++
+		}
+	}
+	fmt.Println("Score:", user.Player1.Score, ":", user.Player2.Score)
 }

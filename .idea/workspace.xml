@@ -21,7 +21,12 @@
   <component name="ChangeListManager">
     <list default="true" id="591fb071-010b-4212-9459-7d7752f32332" name="Default Changelist" comment="&quot;Fixed parallel game launch errors&quot;">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/clients/action.go" beforeDir="false" afterPath="$PROJECT_DIR$/clients/action.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/en.json" beforeDir="false" afterPath="$PROJECT_DIR$/assets/en.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/ru.json" beforeDir="false" afterPath="$PROJECT_DIR$/assets/ru.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot_launch.go" beforeDir="false" afterPath="$PROJECT_DIR$/bot_launch.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/clients/battle_action.go" beforeDir="false" afterPath="$PROJECT_DIR$/clients/battle_action.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/clients/parameters.go" beforeDir="false" afterPath="$PROJECT_DIR$/clients/parameters.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game_logic/battle.go" beforeDir="false" afterPath="$PROJECT_DIR$/game_logic/battle.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

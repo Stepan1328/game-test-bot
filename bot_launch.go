@@ -270,6 +270,27 @@ func checkBattleBase(update *tgbotapi.Update) (int, bool) {
 	return userID2, true
 }
 
+func reMatch(update *tgbotapi.Update) {
+	userID1 := update.Message.From.ID
+	userID2 := clients.Players[userID1].LastBattleID
+	if userID2 == 0 {
+		gl.SimpleMsg(userID1, "no_battles_played")
+		return
+	}
+	userName1 := clients.Battles[update.Message.From.UserName].Player1.UserName
+	userName2 := clients.Battles[update.Message.From.UserName].Player2.UserName
+
+	clients.Battles[userName1] = &*clients.Battles[userName1+","+userName2]
+	clients.Battles[userName2] = &*clients.Battles[userName1+","+userName2]
+
+	if clients.Players[userID2].BattleInvite {
+		gl.Tttbattle(update.Message.From.UserName)
+	} else {
+		gl.SimpleMsg(update.Message.From.ID, "player_dis_notify")
+		return
+	}
+}
+
 func addToBattlesBase(userName1, userName2 string) {
 	var firstMove bool
 	switch rand.Intn(2) {
@@ -349,6 +370,8 @@ func recognitionCommand(update *tgbotapi.Update) {
 		battleLaunch(update)
 	case "muteinvite":
 		changeBattleInvite(update)
+	case "rematch":
+		reMatch(update)
 	case "start":
 		gl.SimpleMsg(update.Message.From.ID, "start")
 	default:

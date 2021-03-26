@@ -5,9 +5,12 @@
   "play_cross": "Now you play for ❌",
   "play_zero": "Now you play for ⭕",
   "draw": "Draw ⚔️\nLucky next time\nLet's play one more timed, write /tttgame",
+  "battle_draw": "Draw ⚔️\nLucky next time\nLet's play one more timed, write /rematch",
   "occupied_cell": "This cell is already occupied\nSelect another cell",
   "win_cross": "Congratulations to \uD83D\uDD25❌\uD83D\uDD25 he is the winner \uD83C\uDF89\nPlayer 2 don't be upset and ask for a rematch by writing /tttgame",
   "win_zero": "Congratulations to \uD83D\uDD25⭕\uD83D\uDD25 he is the winner \uD83C\uDF89\nPlayer 1 don't be upset and ask for a rematch by writing /tttgame",
+  "battle_win_cross": "Congratulations to \uD83D\uDD25❌\uD83D\uDD25 he is the winner \uD83C\uDF89\nPlayer 2 don't be upset and ask for a rematch by writing /rematch",
+  "battle_win_zero": "Congratulations to \uD83D\uDD25⭕\uD83D\uDD25 he is the winner \uD83C\uDF89\nPlayer 1 don't be upset and ask for a rematch by writing /rematch",
   "unfinished_game": "Please finish playing the game or finish ahead of schedule by writing\n/stopgame",
   "unfinished_battle": "Please finish the battle or give up by writing\n/leave",
   "no_run_game": "No running game\nTry to write /tttgame to play tic tac toe",
@@ -32,5 +35,7 @@
   "disable_notifications": "Incoming invitations are muted \uD83D\uDD15",
   "player_dis_notify": "This player has turned off invitation notifications, so you won't be able to play with them \uD83D\uDE14",
   "player_not_found": "Hmm, strange, but I don't see a player with this nickname in my database, maybe he hasn't launched me on his device yet \uD83D\uDE41",
-  "not_player_move": "It's not your turn now"
+  "not_player_move": "It's not your turn now",
+  "player_is_busy": "Unfortunately, this player is currently busy and can not join the game, try to accept the invitation later",
+  "no_battles_played": "You haven't played a single battle yet\nTo write this command, play at least one game by writing /tttbattle <opponent's nickname>"
 }

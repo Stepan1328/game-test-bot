@@ -31,14 +31,21 @@ func AnalyzeResponseToRequest(callback *tgbotapi.CallbackQuery) {
 
 	switch callback.Data {
 	case "yes":
-		DeleteMessage(uID1)
-		SimpleMsg(uID1, "accepted_invitation")
-		SimpleMsg(uID2, "accepted_req")
-
 		uN1 := clients.Players[uID1].UserName
 		uN2 := clients.Players[uID2].UserName
+		if clients.Players[uID2].RunGame || clients.Battles[uN2].RunGame {
+			TemporaryMessage(uID1, "player_is_busy")
+			clients.SaveBase()
+			return
+		}
+		DeleteMessage(uID1)
+
+		SimpleMsg(uID1, "accepted_invitation")
+		SimpleMsg(uID2, "accepted_req")
 		clients.Battles[uN1] = &*clients.Battles[uN2+","+uN1]
 		clients.Battles[uN2] = &*clients.Battles[uN2+","+uN1]
+		clients.Players[uID1].LastBattleID = uID2
+		clients.Players[uID2].LastBattleID = uID1
 
 		sendDouMsg(uN2)
 		clients.SaveBase()

@@ -7,6 +7,7 @@ import (
 type UsersStatistic struct {
 	UserName        string
 	BattleInvite    bool
+	LastBattleID    int
 	RunGame         bool
 	FirstMove       bool
 	ChatID          int64
