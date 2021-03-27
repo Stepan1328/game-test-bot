@@ -200,5 +200,4 @@ func (user *BattleStatistic) increaseScore() {
 			user.Player1.Score++
 		}
 	}
-	fmt.Println("Score:", user.Player1.Score, ":", user.Player2.Score)
 }

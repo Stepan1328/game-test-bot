@@ -1,6 +1,7 @@
 package game_logic
 
 import (
+	"fmt"
 	"github.com/Stepan1328/game-test-bot/clients"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
@@ -10,7 +11,8 @@ import (
 func Tttbattle(userName string) {
 	u1, u2 := identifyPlayers(userName)
 
-	msg := tgbotapi.NewMessage(clients.Players[u2].ChatID, clients.Players[u1].UserName+clients.Players[u2].Location.Dictionary["battle_req"])
+	text := fmt.Sprintf(clients.Players[u2].Location.Dictionary["battle_req"], clients.Players[u1].UserName)
+	msg := tgbotapi.NewMessage(clients.Players[u2].ChatID, text)
 	yes := tgbotapi.NewInlineKeyboardButtonData(clients.Players[u2].Location.Dictionary["yes"], "yes")
 	no := tgbotapi.NewInlineKeyboardButtonData(clients.Players[u2].Location.Dictionary["no"], "no")
 	row := tgbotapi.NewInlineKeyboardRow(yes, no)

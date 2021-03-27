@@ -24,7 +24,7 @@
   "battle_zero_his_turn": "This is the tic-tac-toe field\nTo put a cross or zero, just click on the button and its state will change\nYou play for ⭕\nYour move",
   "battle_zero_no_his_turn": "This is the tic-tac-toe field\nTo put a cross or zero, just click on the button and its state will change\nYou play for ⭕\nWait for the opponent's move",
   "reversible_req": "You can't start a battle with yourself",
-  "battle_req": " wants to play tic tac toe with you\nAccept a game request?",
+  "battle_req": "%s wants to play tic tac toe with you\nAccept a game request?",
   "yes": "Yes",
   "no": "No",
   "declined_invitation": "You declined the invitation",
