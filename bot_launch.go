@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/Stepan1328/game-test-bot/clients"
-	gl "github.com/Stepan1328/game-test-bot/game_logic"
-	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
 	"math/rand"
 	"strings"
+
+	"github.com/Stepan1328/game-test-bot/clients"
+	gl "github.com/Stepan1328/game-test-bot/game_logic"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func ActionsWithUpdates(updates tgbotapi.UpdatesChannel) {
+func actionsWithUpdates(updates tgbotapi.UpdatesChannel) {
 	for update := range updates {
 		checkUpdate(&update)
 	}
@@ -21,7 +22,7 @@ func checkUpdate(update *tgbotapi.Update) {
 		return
 	}
 
-	if CheckPlayer(update) {
+	if checkPlayer(update) {
 		return
 	}
 
@@ -61,7 +62,7 @@ func checkUpdate(update *tgbotapi.Update) {
 	}
 }
 
-func CheckPlayer(update *tgbotapi.Update) bool {
+func checkPlayer(update *tgbotapi.Update) bool {
 	// check username and is it in the base via Message
 	if update.Message != nil {
 		if _, inBase := clients.Players[update.Message.From.ID]; !inBase {

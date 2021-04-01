@@ -1,11 +1,12 @@
 package main
 
 import (
+	"log"
+	"os"
+
 	"github.com/Stepan1328/game-test-bot/clients"
 	"github.com/Stepan1328/game-test-bot/game_logic"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"log"
-	"os"
 )
 
 func main() {
@@ -15,7 +16,7 @@ func main() {
 	startHandler()
 	clients.Bot, updates = startBot()
 
-	ActionsWithUpdates(updates)
+	actionsWithUpdates(updates)
 }
 
 func startBot() (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {
