@@ -8,6 +8,8 @@ import (
 	"sync"
 )
 
+// UploadDatabase is a function of uploading data about all users
+// to the corresponding maps after a reboot
 func UploadDatabase() {
 	wg := new(sync.WaitGroup)
 	wg.Add(3)
@@ -71,6 +73,7 @@ func uploadCompatibility(wg *sync.WaitGroup) {
 	wg.Done()
 }
 
+// SaveBase is a function that saves data about all users
 func SaveBase() {
 	wg := new(sync.WaitGroup)
 	wg.Add(3)

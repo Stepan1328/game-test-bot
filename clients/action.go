@@ -3,11 +3,12 @@ package clients
 import (
 	"encoding/json"
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
 	"math/rand"
 	"os"
 	"strconv"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 var (
@@ -15,11 +16,13 @@ var (
 	zeroButton  = tgbotapi.NewInlineKeyboardButtonData("⭕️", " ")
 )
 
+// Action is a move structure row is Y, column is X.
 type Action struct {
 	Y int
 	X int
 }
 
+// Analyze is bot intelect.
 func (f *Field) Analyze(player int, motion int) (Action, int) {
 	winMoves := make([]Action, 0)
 	drawMoves := make([]Action, 0)
@@ -84,19 +87,20 @@ func (f *Field) Analyze(player int, motion int) (Action, int) {
 		}
 
 		return losingMoves[rand.Intn(len(losingMoves))], 0
-	} else {
-		if len(losingMoves) > 0 {
-			return losingMoves[rand.Intn(len(losingMoves))], 2
-		}
-
-		if len(drawMoves) > 0 {
-			return drawMoves[rand.Intn(len(drawMoves))], 1
-		}
-
-		return winMoves[rand.Intn(len(winMoves))], 0
 	}
+
+	if len(losingMoves) > 0 {
+		return losingMoves[rand.Intn(len(losingMoves))], 2
+	}
+
+	if len(drawMoves) > 0 {
+		return drawMoves[rand.Intn(len(drawMoves))], 1
+	}
+
+	return winMoves[rand.Intn(len(winMoves))], 0
 }
 
+// HumanMove is a method to make human move.
 func (user *UsersStatistic) HumanMove(data string) bool {
 	numberOfCell, err := strconv.Atoi(data)
 	if err != nil {
@@ -122,10 +126,11 @@ func (user *UsersStatistic) HumanMove(data string) bool {
 	return false
 }
 
+// BotMove is a method to make bot move.
 func (user *UsersStatistic) BotMove() bool {
 	motion, _ := user.Field.Analyze((user.Field.Move+1)%2+1, user.Field.Move)
 	user.Field.PlayingField[motion.Y][motion.X] = (user.Field.Move+1)%2 + 1
-	user.Field.Move += 1
+	user.Field.Move++
 	user.ParseMarkUp()
 
 	replymsg := tgbotapi.NewEditMessageReplyMarkup(user.ChatID, user.MsgID, user.FieldMarkup)
@@ -146,6 +151,7 @@ func (user *UsersStatistic) BotMove() bool {
 	return false
 }
 
+// CheckInvitationStack send invitation msg to player if he has pending requests
 func CheckInvitationStack(userID int) {
 	if len(Players[userID].InvitationStack) > 0 {
 		sendInvitationMsg(userID)
@@ -163,13 +169,15 @@ func sendInvitationMsg(userID int) {
 	SaveBase()
 }
 
+// EditField is a convenient method for changing the state of a player's field
 func (user *UsersStatistic) EditField(numberOfCell int) {
 	column := (numberOfCell - 1) % 3
 	row := (numberOfCell - 1) / 3
 	user.Field.PlayingField[row][column] = (user.Field.Move+1)%2 + 1
-	user.Field.Move += 1
+	user.Field.Move++
 }
 
+// ParseMarkUp is a convenient method for parsing a field-keyboard from its field
 func (user *UsersStatistic) ParseMarkUp() {
 	var masOfButton [9]tgbotapi.InlineKeyboardButton
 	var masOfRow [3][]tgbotapi.InlineKeyboardButton
@@ -194,6 +202,7 @@ func (user *UsersStatistic) ParseMarkUp() {
 	user.FieldMarkup = tgbotapi.NewInlineKeyboardMarkup(masOfRow[0], masOfRow[1], masOfRow[2])
 }
 
+// CheckSituation is a method who checks the situation on the field
 func (user *UsersStatistic) CheckSituation() bool {
 	if user.sendWinMsg() {
 		user.ClearField()
@@ -244,6 +253,7 @@ func (user *UsersStatistic) sendWinMsg() bool {
 	return win
 }
 
+// ParseLangMap is a method that changes the user's language dictionary
 func (user *UsersStatistic) ParseLangMap() {
 	lang := user.Location.Language
 	bytes, _ := os.ReadFile("./assets/" + lang + ".json")

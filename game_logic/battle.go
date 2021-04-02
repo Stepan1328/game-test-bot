@@ -83,7 +83,7 @@ func sendMsg(userName string, numOfPlayer int) tgbotapi.Message {
 
 	switch numOfPlayer {
 	case 1:
-		u1 := clients.Battles[userName].Player1.PlayerId
+		u1 := clients.Battles[userName].Player1.PlayerID
 		chatID = clients.Players[u1].ChatID
 		if clients.Battles[clients.Players[u1].UserName].FirstMove {
 			text = clients.Players[u1].Location.Dictionary["battle_cross_his_turn"]
@@ -91,7 +91,7 @@ func sendMsg(userName string, numOfPlayer int) tgbotapi.Message {
 			text = clients.Players[u1].Location.Dictionary["battle_zero_no_his_turn"]
 		}
 	case 2:
-		u2 := clients.Battles[userName].Player2.PlayerId
+		u2 := clients.Battles[userName].Player2.PlayerID
 		chatID = clients.Players[u2].ChatID
 		if clients.Battles[clients.Players[u2].UserName].FirstMove {
 			text = clients.Players[u2].Location.Dictionary["battle_zero_no_his_turn"]
@@ -116,10 +116,10 @@ func identifyPlayers(userName string) (int, int) {
 
 	if clients.Battles[userName].Player1.UserName == userName {
 		u1 = clients.Compatibility[userName]
-		u2 = clients.Battles[userName].Player2.PlayerId
+		u2 = clients.Battles[userName].Player2.PlayerID
 	} else {
 		u1 = clients.Compatibility[userName]
-		u2 = clients.Battles[userName].Player1.PlayerId
+		u2 = clients.Battles[userName].Player1.PlayerID
 	}
 
 	return u1, u2
@@ -137,8 +137,8 @@ func BattleMotion() {
 
 		makeMove(updateCallback)
 	case Message := <-clients.StopBattleChannel:
-		stopGameMsg(clients.Battles[Message.From.UserName].Player1.PlayerId)
-		stopGameMsg(clients.Battles[Message.From.UserName].Player2.PlayerId)
+		stopGameMsg(clients.Battles[Message.From.UserName].Player1.PlayerID)
+		stopGameMsg(clients.Battles[Message.From.UserName].Player2.PlayerID)
 
 		clients.Battles[Message.From.UserName].ClearField()
 		clients.SaveBase()
@@ -163,8 +163,8 @@ func makeMove(updateCallback tgbotapi.CallbackQuery) {
 	}
 
 	clients.Battles[updateCallback.From.UserName].HumanBattleMove(updateCallback.Data)
-	DeleteMessage(clients.Battles[userName].Player1.PlayerId)
-	DeleteMessage(clients.Battles[userName].Player2.PlayerId)
+	DeleteMessage(clients.Battles[userName].Player1.PlayerID)
+	DeleteMessage(clients.Battles[userName].Player2.PlayerID)
 }
 
 func stopGameMsg(playerID int) {

@@ -1,5 +1,6 @@
 package clients
 
+// CheckingWinner is a function that checks the field for a winner
 func CheckingWinner(playField [3][3]int, move int) (bool, int) {
 	victory := false
 

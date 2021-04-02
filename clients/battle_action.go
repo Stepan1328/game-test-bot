@@ -7,6 +7,8 @@ import (
 	"strconv"
 )
 
+// HumanBattleMove is a structure that allows you to easily send
+// and change the battle fields after a response from the keyboard
 func (user *BattleStatistic) HumanBattleMove(data string) {
 	if !user.RunGame {
 		return
@@ -50,20 +52,20 @@ func (player *Player) sendEditTitle(offset int) {
 	switch offset {
 	case 1:
 		if player.Queue {
-			text = Players[player.PlayerId].Location.Dictionary["battle_cross_his_turn"]
+			text = Players[player.PlayerID].Location.Dictionary["battle_cross_his_turn"]
 		} else {
-			text = Players[player.PlayerId].Location.Dictionary["battle_cross_no_his_turn"]
+			text = Players[player.PlayerID].Location.Dictionary["battle_cross_no_his_turn"]
 		}
 	case 2:
 		if player.Queue {
-			text = Players[player.PlayerId].Location.Dictionary["battle_zero_his_turn"]
+			text = Players[player.PlayerID].Location.Dictionary["battle_zero_his_turn"]
 		} else {
-			text = Players[player.PlayerId].Location.Dictionary["battle_zero_no_his_turn"]
+			text = Players[player.PlayerID].Location.Dictionary["battle_zero_no_his_turn"]
 		}
 	}
 
-	editMsg := tgbotapi.NewEditMessageText(Players[player.PlayerId].ChatID, player.MsgID, text)
-	userName := Players[player.PlayerId].UserName
+	editMsg := tgbotapi.NewEditMessageText(Players[player.PlayerID].ChatID, player.MsgID, text)
+	userName := Players[player.PlayerID].UserName
 	editMsg.ReplyMarkup = &Battles[userName].FieldMarkup
 
 	if _, err := Bot.Send(editMsg); err != nil {
@@ -71,21 +73,25 @@ func (player *Player) sendEditTitle(offset int) {
 	}
 }
 
+// EditMarkUpMsg is method used to change a field in a message
 func (player *Player) EditMarkUpMsg() {
-	replyMsg := tgbotapi.NewEditMessageReplyMarkup(Players[player.PlayerId].ChatID, player.MsgID, Battles[player.UserName].FieldMarkup)
+	replyMsg := tgbotapi.NewEditMessageReplyMarkup(Players[player.PlayerID].ChatID,
+		player.MsgID, Battles[player.UserName].FieldMarkup)
 
 	if _, err := Bot.Send(replyMsg); err != nil {
 		log.Println(err)
 	}
 }
 
+// EditField is a method with which you can conveniently change the fields of the battle structure
 func (user *BattleStatistic) EditField(numberOfCell int) {
 	column := (numberOfCell - 1) % 3
 	row := (numberOfCell - 1) / 3
 	user.Field.PlayingField[row][column] = (user.Field.Move+1)%2 + 1
-	user.Field.Move += 1
+	user.Field.Move++
 }
 
+// ParseMarkUp is a convenient method for parsing a field-keyboard from its field
 func (user *BattleStatistic) ParseMarkUp() {
 	var masOfButton [9]tgbotapi.InlineKeyboardButton
 	var masOfRow [3][]tgbotapi.InlineKeyboardButton
@@ -110,6 +116,7 @@ func (user *BattleStatistic) ParseMarkUp() {
 	user.FieldMarkup = tgbotapi.NewInlineKeyboardMarkup(masOfRow[0], masOfRow[1], masOfRow[2])
 }
 
+// CheckSituation is a method who checks the situation on the field
 func (user *BattleStatistic) CheckSituation() bool {
 	if user.sendWinMsg() {
 		user.ClearField()
@@ -134,6 +141,7 @@ func (user *BattleStatistic) CheckSituation() bool {
 	return false
 }
 
+// CheckQueue checks the order of moves and access to the field change
 func (user *BattleStatistic) CheckQueue(userName string) bool {
 	if user.Player1.UserName == userName {
 		return user.Player1.Queue
@@ -149,7 +157,7 @@ func (user *BattleStatistic) sendDrawMsg() {
 }
 
 func (player *Player) sendBattleDrawMsg() {
-	drawMessage := tgbotapi.NewMessage(Players[player.PlayerId].ChatID, Players[player.PlayerId].Location.Dictionary["battle_draw"])
+	drawMessage := tgbotapi.NewMessage(Players[player.PlayerID].ChatID, Players[player.PlayerID].Location.Dictionary["battle_draw"])
 
 	if _, err := Bot.Send(drawMessage); err != nil {
 		log.Println(err)
@@ -173,12 +181,12 @@ func (user *BattleStatistic) sendWinMsg() bool {
 }
 
 func (player *Player) sendBattleWinMsg(move int) {
-	winMessage := tgbotapi.NewMessage(Players[player.PlayerId].ChatID, "")
+	winMessage := tgbotapi.NewMessage(Players[player.PlayerID].ChatID, "")
 
 	if move%2 == 0 {
-		winMessage.Text = Players[player.PlayerId].Location.Dictionary["battle_win_cross"]
+		winMessage.Text = Players[player.PlayerID].Location.Dictionary["battle_win_cross"]
 	} else {
-		winMessage.Text = Players[player.PlayerId].Location.Dictionary["battle_win_zero"]
+		winMessage.Text = Players[player.PlayerID].Location.Dictionary["battle_win_zero"]
 	}
 
 	if _, err := Bot.Send(winMessage); err != nil {

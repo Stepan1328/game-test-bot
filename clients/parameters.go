@@ -4,6 +4,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
+// UsersStatistic is the main structure containing all the settings and statistics of a particular user
 type UsersStatistic struct {
 	UserName        string
 	BattleInvite    bool
@@ -19,16 +20,19 @@ type UsersStatistic struct {
 	InvitationStack []tgbotapi.MessageConfig
 }
 
+// Localization responsible for the language in which messages are sent
 type Localization struct {
 	Language   string
 	Dictionary map[string]string
 }
 
+// Field stores the state of the field
 type Field struct {
 	PlayingField [3][3]int
 	Move         int
 }
 
+// CheckMsg is a method that checks the correctness of the message id
 func (user *UsersStatistic) CheckMsg(MsgID int) bool {
 	if user.MsgID == MsgID {
 		return true
@@ -37,6 +41,7 @@ func (user *UsersStatistic) CheckMsg(MsgID int) bool {
 	return false
 }
 
+// ClearField completely clears the field after the game
 func (user *UsersStatistic) ClearField() {
 	user.RunGame = false
 	user.Field.PlayingField = [3][3]int{}
@@ -44,6 +49,8 @@ func (user *UsersStatistic) ClearField() {
 	user.ParseMarkUp()
 }
 
+// BattleStatistic the main structure containing all the information about
+// a couple of users who played the battle
 type BattleStatistic struct {
 	RunGame     bool
 	FirstMove   bool
@@ -53,14 +60,16 @@ type BattleStatistic struct {
 	FieldMarkup tgbotapi.InlineKeyboardMarkup
 }
 
+// Player is a structure containing information about one of the players in the battle
 type Player struct {
 	UserName string
-	PlayerId int
+	PlayerID int
 	MsgID    int
 	Queue    bool
 	Score    int
 }
 
+// CheckMsg is a method that checks the correctness of the message id
 func (user *BattleStatistic) CheckMsg(MsgID int, userName string) bool {
 	var trueMsgID int
 	if Battles[userName].Player1.UserName == userName {
@@ -75,6 +84,7 @@ func (user *BattleStatistic) CheckMsg(MsgID int, userName string) bool {
 	return false
 }
 
+// ClearField completely clears the field after the game
 func (user *BattleStatistic) ClearField() {
 	user.RunGame = false
 	user.Field.PlayingField = [3][3]int{}

@@ -305,12 +305,12 @@ func addToBattlesBase(userName1, userName2 string) {
 		FirstMove: firstMove,
 		Player1: &clients.Player{
 			UserName: userName1,
-			PlayerId: clients.Compatibility[userName1],
+			PlayerID: clients.Compatibility[userName1],
 			Queue:    firstMove,
 		},
 		Player2: &clients.Player{
 			UserName: userName2,
-			PlayerId: clients.Compatibility[userName2],
+			PlayerID: clients.Compatibility[userName2],
 			Queue:    !firstMove,
 		},
 		Field: &clients.Field{
