@@ -224,7 +224,7 @@ func analyzeNotificationAnswer(callbackQuery *tgbotapi.CallbackQuery) {
 // DeleteSettingMsg is a function that deletes the settings message
 func DeleteSettingMsg(playerID int) {
 	deleteMsg := tgbotapi.NewDeleteMessage(clients.Players[playerID].ChatID,
-	clients.Players[playerID].SettingID)
+		clients.Players[playerID].SettingID)
 
 	_, err := clients.Bot.Send(deleteMsg)
 	if err != nil {
