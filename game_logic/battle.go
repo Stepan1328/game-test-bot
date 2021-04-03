@@ -1,4 +1,4 @@
-package game_logic
+package gamelogic
 
 import (
 	"fmt"
@@ -8,7 +8,8 @@ import (
 	"sync"
 )
 
-func Tttbattle(userName string) {
+// Tttbattle is a function that sends a request to the opponent for the game
+func Tttbattle(userName string) { // TODO: request send msg
 	u1, u2 := identifyPlayers(userName)
 
 	text := fmt.Sprintf(clients.Players[u2].Location.Dictionary["battle_req"], clients.Players[u1].UserName)
@@ -26,6 +27,7 @@ func Tttbattle(userName string) {
 	}
 }
 
+// AnalyzeResponseToRequest is a function that analyzes the response to a request
 func AnalyzeResponseToRequest(callback *tgbotapi.CallbackQuery) {
 	userName := callback.From.UserName
 	clients.Battles[userName].ParseMarkUp()
@@ -125,12 +127,13 @@ func identifyPlayers(userName string) (int, int) {
 	return u1, u2
 }
 
+// BattleMotion is a function that processes callback responses
 func BattleMotion() {
 	select {
 	case updateCallback := <-clients.TranslateBattle:
 		userName := updateCallback.From.UserName
-		msgId := updateCallback.Message.MessageID
-		if !clients.Battles[userName].CheckMsg(msgId, userName) {
+		msgID := updateCallback.Message.MessageID
+		if !clients.Battles[userName].CheckMsg(msgID, userName) {
 			TemporaryMessage(updateCallback.From.ID, "irrelevant_field")
 			return
 		}

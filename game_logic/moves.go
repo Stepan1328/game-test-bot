@@ -1,4 +1,4 @@
-package game_logic
+package gamelogic
 
 import (
 	"github.com/Stepan1328/game-test-bot/clients"
@@ -6,6 +6,7 @@ import (
 	"log"
 )
 
+// Tttgame is a function for starting a game with a bot
 func Tttgame(update *tgbotapi.Update) {
 	playerID := update.Message.From.ID
 	msg := tgbotapi.NewMessage(clients.Players[playerID].ChatID, clients.Players[playerID].Location.Dictionary["main"])
@@ -20,21 +21,23 @@ func Tttgame(update *tgbotapi.Update) {
 	clients.SaveBase()
 }
 
+// FirstMove is a function that makes the first move of the bot if necessary
 func FirstMove(update *tgbotapi.Update) {
-	var playerId int
+	var playerID int
 	if update.Message != nil {
-		playerId = update.Message.From.ID
-		if !clients.Players[playerId].FirstMove && clients.Players[playerId].Field.Move == 1 {
-			clients.Players[playerId].BotMove()
+		playerID = update.Message.From.ID
+		if !clients.Players[playerID].FirstMove && clients.Players[playerID].Field.Move == 1 {
+			clients.Players[playerID].BotMove()
 		}
 	} else {
-		playerId = update.CallbackQuery.From.ID
-		if !clients.Players[playerId].FirstMove && clients.Players[playerId].Field.Move == 1 {
-			clients.Players[playerId].BotMove()
+		playerID = update.CallbackQuery.From.ID
+		if !clients.Players[playerID].FirstMove && clients.Players[playerID].Field.Move == 1 {
+			clients.Players[playerID].BotMove()
 		}
 	}
 }
 
+// Motion is a function that processes callback responses
 func Motion() {
 	select {
 	case updateCallback := <-clients.TranslateUpdate:
@@ -75,6 +78,7 @@ func makeDoubleMove(updateCallback tgbotapi.CallbackQuery) {
 	clients.Players[playerID].BotMove()
 }
 
+// DeleteMessage is a function that deletes the message whose IDs are written to the array
 func DeleteMessage(playerID int) {
 	for len(clients.Players[playerID].OccupiedSells) > 0 {
 		deleteMsg := tgbotapi.NewDeleteMessage(clients.Players[playerID].ChatID, clients.Players[playerID].OccupiedSells[0])
@@ -88,6 +92,8 @@ func DeleteMessage(playerID int) {
 	clients.SaveBase()
 }
 
+// TemporaryMessage is a function for sending a message
+// that will be deleted in the future using the DeleteMessage() function
 func TemporaryMessage(playerID int, text string) {
 	replymsg := tgbotapi.NewMessage(clients.Players[playerID].ChatID, clients.Players[playerID].Location.Dictionary[text])
 
@@ -100,6 +106,7 @@ func TemporaryMessage(playerID int, text string) {
 	clients.SaveBase()
 }
 
+// SimpleMsg is a function for sending a message
 func SimpleMsg(playerID int, text string) {
 	msg := tgbotapi.NewMessage(clients.Players[playerID].ChatID, clients.Players[playerID].Location.Dictionary[text])
 

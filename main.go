@@ -47,13 +47,13 @@ func takeBotToken() string {
 func startHandler() {
 	go func() {
 		for {
-			game_logic.Motion()
+			gamelogic.Motion()
 		}
 	}()
 
 	go func() {
 		for {
-			game_logic.BattleMotion()
+			gamelogic.BattleMotion()
 		}
 	}()
 }
