@@ -38,5 +38,16 @@
   "player_not_found": "Hmm, strange, but I don't see a player with this nickname in my database, maybe he hasn't launched me on his device yet \uD83D\uDE41",
   "not_player_move": "It's not your turn now",
   "player_is_busy": "Unfortunately, this player is currently busy and can not join the game, try to accept the invitation later",
-  "no_battles_played": "You haven't played a single battle yet\nTo write this command, play at least one game by writing /tttbattle <opponent's nickname>"
+  "no_battles_played": "You haven't played a single battle yet\nTo write this command, play at least one game by writing /tttbattle <opponent's nickname>",
+  "settings": "Settings ⚙️\nWhat settings would you like to change?",
+  "settings_changeside_cross": "Change Side ❌",
+  "settings_changeside_zero": "Change Side ⭕",
+  "settings_set_lang": "Language 🇬🇧",
+  "settings_notification_on": "Notifications 🔔",
+  "settings_notification_off": "Notifications 🔕",
+  "settings_exit": "Exit",
+  "settings_back": "← Back to Settings",
+  "settings_changeside": "Side ⚔️\nChoose the side you want to play for:",
+  "settings_language": "Localization settings 🌎\nSelect the language you want to continue playing in:",
+  "settings_notification": "Notifications 🛎\nSelect an action:"
 }

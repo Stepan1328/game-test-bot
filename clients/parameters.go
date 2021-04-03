@@ -7,6 +7,7 @@ import (
 // UsersStatistic is the main structure containing all the settings and statistics of a particular user
 type UsersStatistic struct {
 	UserName        string
+	SettingID       int
 	BattleInvite    bool
 	LastBattleID    int
 	RunGame         bool
@@ -46,7 +47,7 @@ func (user *UsersStatistic) ClearField() {
 	user.RunGame = false
 	user.Field.PlayingField = [3][3]int{}
 	user.Field.Move = 1
-	
+
 	user.ParseMarkUp()
 }
 

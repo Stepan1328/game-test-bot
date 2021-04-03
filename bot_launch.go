@@ -114,14 +114,16 @@ func checkCallback(update *tgbotapi.Update) {
 		}
 	}
 
+	if strings.Contains(callbackQuery.Data, "settings") {
+		AnalyzeSettingRequest(callbackQuery)
+		return
+	}
+
 	// analyzing the response to a request
 	if callbackQuery.Data == "yes" || callbackQuery.Data == "no" {
 		gl.AnalyzeResponseToRequest(callbackQuery)
 		return
 	}
-
-	// translate lang change
-	changeLanguage(callbackQuery)
 }
 
 func addToPlayerBase(PlayerID int, chatID int64) {
@@ -167,36 +169,6 @@ func stopBattle(update *tgbotapi.Update) {
 		gl.SimpleMsg(update.Message.From.ID, "no_run_battle")
 		fmt.Println("no battles started")
 	}
-}
-
-func setLanguage(update *tgbotapi.Update) {
-	playerID := update.Message.From.ID
-	msg := tgbotapi.NewMessage(clients.Players[playerID].ChatID, clients.Players[playerID].Location.Dictionary["change_lang"])
-
-	ru := tgbotapi.NewInlineKeyboardButtonData("Русский", "ru")
-	en := tgbotapi.NewInlineKeyboardButtonData("English", "en")
-	row := tgbotapi.NewInlineKeyboardRow(ru, en)
-
-	msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(row)
-
-	msgData, err := clients.Bot.Send(msg)
-	if err != nil {
-		log.Println(err)
-	}
-	clients.Players[playerID].OccupiedSells = append(clients.Players[playerID].OccupiedSells, msgData.MessageID)
-}
-
-func changeSide(update *tgbotapi.Update) {
-	playerID := update.Message.From.ID
-
-	if clients.Players[playerID].FirstMove {
-		clients.Players[playerID].FirstMove = false
-		gl.SimpleMsg(playerID, "play_zero")
-	} else {
-		clients.Players[playerID].FirstMove = true
-		gl.SimpleMsg(playerID, "play_cross")
-	}
-	clients.SaveBase()
 }
 
 func gameLaunch(update *tgbotapi.Update) {
@@ -326,55 +298,20 @@ func addToBattlesBase(userName1, userName2 string) {
 	clients.SaveBase()
 }
 
-func changeBattleInvite(update *tgbotapi.Update) {
-	playerID := update.Message.From.ID
-
-	if clients.Players[playerID].BattleInvite {
-		clients.Players[playerID].BattleInvite = false
-		gl.SimpleMsg(playerID, "disable_notifications")
-	} else {
-		clients.Players[playerID].BattleInvite = true
-		gl.SimpleMsg(playerID, "enable_notifications")
-	}
-
-	clients.SaveBase()
-}
-
-func changeLanguage(updateCallback *tgbotapi.CallbackQuery) {
-	playerID := updateCallback.From.ID
-	switch updateCallback.Data {
-	case "ru":
-		clients.Players[playerID].Location.Language = "ru"
-	case "en":
-		clients.Players[playerID].Location.Language = "en"
-	default:
-		gl.SimpleMsg(playerID, "finished_game")
-		return
-	}
-	clients.Players[playerID].ParseLangMap()
-
-	gl.SimpleMsg(playerID, "lang_set")
-
-	clients.SaveBase()
-	go gl.DeleteMessage(playerID)
-}
-
 func recognitionCommand(update *tgbotapi.Update) {
+	if clients.Players[update.Message.From.ID].SettingID != 0 {
+		DeleteSettingMsg(update.Message.From.ID)
+	}
+
 	switch update.Message.Command() {
-	case "setlanguage":
-		setLanguage(update)
-	case "changeside":
-		changeSide(update)
 	case "tttgame":
 		gameLaunch(update)
 	case "tttbattle":
 		battleLaunch(update)
-	case "muteinvite":
-		changeBattleInvite(update)
 	case "rematch":
 		reMatch(update)
-	// case "setting":
-	// 	settings(update)
+	case "setting":
+		Settings(update)
 	case "start":
 		gl.SimpleMsg(update.Message.From.ID, "start")
 	default:
