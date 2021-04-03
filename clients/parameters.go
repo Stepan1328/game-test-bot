@@ -46,6 +46,7 @@ func (user *UsersStatistic) ClearField() {
 	user.RunGame = false
 	user.Field.PlayingField = [3][3]int{}
 	user.Field.Move = 1
+	
 	user.ParseMarkUp()
 }
 
@@ -89,4 +90,6 @@ func (user *BattleStatistic) ClearField() {
 	user.RunGame = false
 	user.Field.PlayingField = [3][3]int{}
 	user.Field.Move = 1
+
+	user.ParseMarkUp()
 }

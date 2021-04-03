@@ -20,8 +20,9 @@ func Tttbattle(userName string) { // TODO: request send msg
 	msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(row)
 
 	clients.Players[u2].InvitationStack = append(clients.Players[u2].InvitationStack, msg)
-	userName2 := clients.Players[u2].UserName
+	SimpleMsg(u1, "req_sent_successfully")
 
+	userName2 := clients.Players[u2].UserName
 	if !clients.Players[u2].RunGame && !clients.Battles[userName2].RunGame {
 		clients.CheckInvitationStack(u2)
 	}

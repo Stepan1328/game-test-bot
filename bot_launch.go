@@ -373,6 +373,8 @@ func recognitionCommand(update *tgbotapi.Update) {
 		changeBattleInvite(update)
 	case "rematch":
 		reMatch(update)
+	// case "setting":
+	// 	settings(update)
 	case "start":
 		gl.SimpleMsg(update.Message.From.ID, "start")
 	default:
