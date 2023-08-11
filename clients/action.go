@@ -8,7 +8,7 @@ import (
 	"os"
 	"strconv"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 var (
@@ -152,14 +152,14 @@ func (user *UsersStatistic) BotMove() bool {
 }
 
 // CheckInvitationStack send invitation msg to player if he has pending requests
-func CheckInvitationStack(userID int) {
+func CheckInvitationStack(userID int64) {
 	if len(Players[userID].InvitationStack) > 0 {
 		sendInvitationMsg(userID)
 		Players[userID].InvitationStack = Players[userID].InvitationStack[1:]
 	}
 }
 
-func sendInvitationMsg(userID int) {
+func sendInvitationMsg(userID int64) {
 	msg := Players[userID].InvitationStack[0]
 	msgData, err := Bot.Send(msg)
 	if err != nil {

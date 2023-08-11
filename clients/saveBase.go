@@ -26,7 +26,7 @@ func UploadDatabase() {
 }
 
 func uploadPlayersBase(wg *sync.WaitGroup) {
-	var playersBase map[int]*UsersStatistic
+	var playersBase map[int64]*UsersStatistic
 	data, err := os.ReadFile("database/playersBase.json")
 	if err != nil {
 		fmt.Println(err)
@@ -58,7 +58,7 @@ func uploadBattlesBase(wg *sync.WaitGroup) {
 }
 
 func uploadCompatibility(wg *sync.WaitGroup) {
-	var compatibility map[string]int
+	var compatibility map[string]int64
 	data, err := os.ReadFile("database/compatibility.json")
 	if err != nil {
 		fmt.Println(err)

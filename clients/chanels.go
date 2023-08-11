@@ -1,33 +1,33 @@
 package clients
 
 import (
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 var (
 	// Bot is a structure used for sending messages to chats
-	Bot               *tgbotapi.BotAPI
+	Bot *tgbotapi.BotAPI
 
 	// TranslateUpdate is a channel for sending click responses
-	TranslateUpdate   = make(chan tgbotapi.CallbackQuery)
-	
+	TranslateUpdate = make(chan tgbotapi.CallbackQuery)
+
 	// TranslateBattle is a channel for sending responses related to battles
-	TranslateBattle   = make(chan tgbotapi.CallbackQuery)
+	TranslateBattle = make(chan tgbotapi.CallbackQuery)
 
 	// StopChannel is a channel for sending stop commands
-	StopChannel       = make(chan tgbotapi.Message)
-	
+	StopChannel = make(chan tgbotapi.Message)
+
 	// StopBattleChannel is a channel for sending messages stopping the battle
 	StopBattleChannel = make(chan tgbotapi.Message)
-	
+
 	// Players is a PlayerBase map which assigns all the user IDs to their structures
-	Players           = make(map[int]*UsersStatistic)
-	
+	Players = make(map[int64]*UsersStatistic)
+
 	// Compatibility is a map which stores the link between the player's nickname
 	// and his ID to find it in the player database
-	Compatibility     = make(map[string]int)
-	
+	Compatibility = make(map[string]int64)
+
 	// Battles is a map which stores battles between players
 	// the key is to combine the nicknames of two players
-	Battles           = make(map[string]*BattleStatistic)
+	Battles = make(map[string]*BattleStatistic)
 )

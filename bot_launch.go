@@ -6,9 +6,10 @@ import (
 	"math/rand"
 	"strings"
 
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+
 	"github.com/Stepan1328/game-test-bot/clients"
 	gl "github.com/Stepan1328/game-test-bot/game_logic"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 func actionsWithUpdates(updates tgbotapi.UpdatesChannel) {
@@ -126,7 +127,7 @@ func checkCallback(update *tgbotapi.Update) {
 	}
 }
 
-func addToPlayerBase(PlayerID int, chatID int64) {
+func addToPlayerBase(PlayerID int64, chatID int64) {
 	clients.Players[PlayerID] = &clients.UsersStatistic{
 		BattleInvite: true,
 		ChatID:       chatID,
@@ -205,7 +206,7 @@ func battleLaunch(update *tgbotapi.Update) {
 	}
 }
 
-func checkBattleBase(update *tgbotapi.Update) (int, bool) {
+func checkBattleBase(update *tgbotapi.Update) (int64, bool) {
 	userID1 := update.Message.From.ID
 	if strings.Count(update.Message.Text, "/tttbattle @") != 1 {
 		gl.SimpleMsg(userID1, "invalid_opponent")

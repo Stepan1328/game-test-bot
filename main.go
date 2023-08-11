@@ -4,9 +4,10 @@ import (
 	"log"
 	"os"
 
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+
 	"github.com/Stepan1328/game-test-bot/clients"
 	"github.com/Stepan1328/game-test-bot/game_logic"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 func main() {
@@ -29,10 +30,7 @@ func startBot() (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {
 
 	u := tgbotapi.NewUpdate(0)
 
-	updates, err := bot.GetUpdatesChan(u)
-	if err != nil {
-		panic("Failed to initialize bot: " + err.Error())
-	}
+	updates := bot.GetUpdatesChan(u)
 
 	log.Println("The bot is running")
 

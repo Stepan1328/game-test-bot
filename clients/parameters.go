@@ -1,7 +1,7 @@
 package clients
 
 import (
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 // UsersStatistic is the main structure containing all the settings and statistics of a particular user
@@ -9,7 +9,7 @@ type UsersStatistic struct {
 	UserName        string
 	SettingID       int
 	BattleInvite    bool
-	LastBattleID    int
+	LastBattleID    int64
 	RunGame         bool
 	FirstMove       bool
 	ChatID          int64
@@ -65,7 +65,7 @@ type BattleStatistic struct {
 // Player is a structure containing information about one of the players in the battle
 type Player struct {
 	UserName string
-	PlayerID int
+	PlayerID int64
 	MsgID    int
 	Queue    bool
 	Score    int

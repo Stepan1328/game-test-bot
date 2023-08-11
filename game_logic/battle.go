@@ -2,10 +2,12 @@ package gamelogic
 
 import (
 	"fmt"
-	"github.com/Stepan1328/game-test-bot/clients"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
 	"sync"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+
+	"github.com/Stepan1328/game-test-bot/clients"
 )
 
 // Tttbattle is a function that sends a request to the opponent for the game
@@ -114,8 +116,8 @@ func sendMsg(userName string, numOfPlayer int) tgbotapi.Message {
 	return msgData
 }
 
-func identifyPlayers(userName string) (int, int) {
-	var u1, u2 int
+func identifyPlayers(userName string) (int64, int64) {
+	var u1, u2 int64
 
 	if clients.Battles[userName].Player1.UserName == userName {
 		u1 = clients.Compatibility[userName]
@@ -171,7 +173,7 @@ func makeMove(updateCallback tgbotapi.CallbackQuery) {
 	DeleteMessage(clients.Battles[userName].Player2.PlayerID)
 }
 
-func stopGameMsg(playerID int) {
+func stopGameMsg(playerID int64) {
 	stopGameMessage := tgbotapi.NewMessage(clients.Players[playerID].ChatID, "Game stopped")
 
 	if _, err := clients.Bot.Send(stopGameMessage); err != nil {

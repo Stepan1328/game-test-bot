@@ -4,8 +4,9 @@ import (
 	"log"
 	"strings"
 
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+
 	"github.com/Stepan1328/game-test-bot/clients"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 // Settings is a main function to open settings
@@ -26,7 +27,7 @@ func Settings(update *tgbotapi.Update) {
 	editSettingMsg(update.Message.From.ID)
 }
 
-func editSettingMsg(playerID int) {
+func editSettingMsg(playerID int64) {
 	dictionary := clients.Players[playerID].Location.Dictionary
 
 	var side string
@@ -222,7 +223,7 @@ func analyzeNotificationAnswer(callbackQuery *tgbotapi.CallbackQuery) {
 }
 
 // DeleteSettingMsg is a function that deletes the settings message
-func DeleteSettingMsg(playerID int) {
+func DeleteSettingMsg(playerID int64) {
 	deleteMsg := tgbotapi.NewDeleteMessage(clients.Players[playerID].ChatID,
 		clients.Players[playerID].SettingID)
 

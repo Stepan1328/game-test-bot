@@ -1,9 +1,11 @@
 package gamelogic
 
 import (
-	"github.com/Stepan1328/game-test-bot/clients"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"log"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+
+	"github.com/Stepan1328/game-test-bot/clients"
 )
 
 // Tttgame is a function for starting a game with a bot
@@ -23,7 +25,7 @@ func Tttgame(update *tgbotapi.Update) {
 
 // FirstMove is a function that makes the first move of the bot if necessary
 func FirstMove(update *tgbotapi.Update) {
-	var playerID int
+	var playerID int64
 	if update.Message != nil {
 		playerID = update.Message.From.ID
 		if !clients.Players[playerID].FirstMove && clients.Players[playerID].Field.Move == 1 {
@@ -79,7 +81,7 @@ func makeDoubleMove(updateCallback tgbotapi.CallbackQuery) {
 }
 
 // DeleteMessage is a function that deletes the message whose IDs are written to the array
-func DeleteMessage(playerID int) {
+func DeleteMessage(playerID int64) {
 	for len(clients.Players[playerID].OccupiedSells) > 0 {
 		deleteMsg := tgbotapi.NewDeleteMessage(clients.Players[playerID].ChatID, clients.Players[playerID].OccupiedSells[0])
 
@@ -94,7 +96,7 @@ func DeleteMessage(playerID int) {
 
 // TemporaryMessage is a function for sending a message
 // that will be deleted in the future using the DeleteMessage() function
-func TemporaryMessage(playerID int, text string) {
+func TemporaryMessage(playerID int64, text string) {
 	replymsg := tgbotapi.NewMessage(clients.Players[playerID].ChatID, clients.Players[playerID].Location.Dictionary[text])
 
 	msgData, err := clients.Bot.Send(replymsg)
@@ -107,7 +109,7 @@ func TemporaryMessage(playerID int, text string) {
 }
 
 // SimpleMsg is a function for sending a message
-func SimpleMsg(playerID int, text string) {
+func SimpleMsg(playerID int64, text string) {
 	msg := tgbotapi.NewMessage(clients.Players[playerID].ChatID, clients.Players[playerID].Location.Dictionary[text])
 
 	if _, err := clients.Bot.Send(msg); err != nil {
